@@ -15,7 +15,7 @@ void comparoldnew()
   c1->GetFrame()->SetBorderSize(6);
   c1->GetFrame()->SetBorderMode(-1);
 
-  TFile *Old = TFile::Open("ZmumuAnalyzer_175.root","READ");
+  TFile *Old = TFile::Open("FastZmumuAnalyzer_184.root","READ");
   TFile *New = TFile::Open("ZmumuAnalyzer_183.root","READ");
   Old->cd("Rates/RateEfficiencies/SingleMuIso")  ;
   gDirectory->pwd();
@@ -24,7 +24,7 @@ void comparoldnew()
   New->cd("Rates/RateEfficiencies/SingleMuIso")  ;
   gDirectory->pwd();
   gDirectory->ReadKeys();
-  TH1F *MCTurnOnL1Full= (TH1F *)gDirectory->Get("MCTurnOn_SingleMuIsoL1Filtered"); 
+  TH1F *MCTurnOnL1New= (TH1F *)gDirectory->Get("MCTurnOn_SingleMuIsoL1Filtered"); 
   gStyle->SetOptStat(0);
   gStyle->SetPadColor(0);
   gStyle->SetStatColor(0);
@@ -32,7 +32,7 @@ void comparoldnew()
   if (MCTurnOnL1Old) {
   MCTurnOnL1Old->SetLineColor(2);
   MCTurnOnL1New->SetLineColor(4);
-  MCTurnOnL1Old->SetTitle("L1 175");
+  MCTurnOnL1Old->SetTitle("L1 Fast Sim 184");
   MCTurnOnL1Old->GetYaxis()->SetRangeUser(0.,105.);
   MCTurnOnL1Old->GetXaxis()->SetRangeUser(3.,40.);
   MCTurnOnL1Old->SetLineWidth(2);
@@ -80,23 +80,23 @@ void comparoldnew()
   MCPhiEffL3IsoOld->SetLineWidth(2);
   New->cd("Rates/Distributions/SingleMuIso")  ;
   gDirectory->ls();
-  TH1F *MCTurnOnL2Full= (TH1F *)gDirectory->Get("MCTurnOn_SingleMuIsoL2PreFiltered"); 
-  TH1F *MCTurnOnL2IsoFull= (TH1F *)gDirectory->Get("MCTurnOn_SingleMuIsoL2IsoFiltered"); 
-  TH1F *MCTurnOnL3Full= (TH1F *)gDirectory->Get("MCTurnOn_SingleMuIsoL3PreFiltered"); 
-  TH1F *MCTurnOnL3IsoFull= (TH1F *)gDirectory->Get("MCTurnOn_SingleMuIsoL3IsoFiltered"); 
-  TH1F *MCEtaEffL1Full= (TH1F *)gDirectory->Get("MCeta_SingleMuIsoL1Filtered"); 
-  TH1F *MCEtaEffL2Full= (TH1F *)gDirectory->Get("MCeta_SingleMuIsoL2PreFiltered"); 
-  TH1F *MCEtaEffL2IsoFull= (TH1F *)gDirectory->Get("MCeta_SingleMuIsoL2IsoFiltered"); 
-  TH1F *MCEtaEffL3Full= (TH1F *)gDirectory->Get("MCeta_SingleMuIsoL3PreFiltered"); 
-  TH1F *MCEtaEffL3IsoFull= (TH1F *)gDirectory->Get("MCeta_SingleMuIsoL3IsoFiltered"); 
-  TH1F *MCPhiEffL1Full= (TH1F *)gDirectory->Get("MCphi_SingleMuIsoL1Filtered"); 
-  TH1F *MCPhiEffL2Full= (TH1F *)gDirectory->Get("MCphi_SingleMuIsoL2PreFiltered"); 
-  TH1F *MCPhiEffL2IsoFull= (TH1F *)gDirectory->Get("MCphi_SingleMuIsoL2IsoFiltered"); 
-  TH1F *MCPhiEffL3Full= (TH1F *)gDirectory->Get("MCphi_SingleMuIsoL3PreFiltered"); 
-  TH1F *MCPhiEffL3IsoFull= (TH1F *)gDirectory->Get("MCphi_SingleMuIsoL3IsoFiltered"); 
+  TH1F *MCTurnOnL2New= (TH1F *)gDirectory->Get("MCTurnOn_SingleMuIsoL2PreFiltered"); 
+  TH1F *MCTurnOnL2IsoNew= (TH1F *)gDirectory->Get("MCTurnOn_SingleMuIsoL2IsoFiltered"); 
+  TH1F *MCTurnOnL3New= (TH1F *)gDirectory->Get("MCTurnOn_SingleMuIsoL3PreFiltered"); 
+  TH1F *MCTurnOnL3IsoNew= (TH1F *)gDirectory->Get("MCTurnOn_SingleMuIsoL3IsoFiltered"); 
+  TH1F *MCEtaEffL1New= (TH1F *)gDirectory->Get("MCeta_SingleMuIsoL1Filtered"); 
+  TH1F *MCEtaEffL2New= (TH1F *)gDirectory->Get("MCeta_SingleMuIsoL2PreFiltered"); 
+  TH1F *MCEtaEffL2IsoNew= (TH1F *)gDirectory->Get("MCeta_SingleMuIsoL2IsoFiltered"); 
+  TH1F *MCEtaEffL3New= (TH1F *)gDirectory->Get("MCeta_SingleMuIsoL3PreFiltered"); 
+  TH1F *MCEtaEffL3IsoNew= (TH1F *)gDirectory->Get("MCeta_SingleMuIsoL3IsoFiltered"); 
+  TH1F *MCPhiEffL1New= (TH1F *)gDirectory->Get("MCphi_SingleMuIsoL1Filtered"); 
+  TH1F *MCPhiEffL2New= (TH1F *)gDirectory->Get("MCphi_SingleMuIsoL2PreFiltered"); 
+  TH1F *MCPhiEffL2IsoNew= (TH1F *)gDirectory->Get("MCphi_SingleMuIsoL2IsoFiltered"); 
+  TH1F *MCPhiEffL3New= (TH1F *)gDirectory->Get("MCphi_SingleMuIsoL3PreFiltered"); 
+  TH1F *MCPhiEffL3IsoNew= (TH1F *)gDirectory->Get("MCphi_SingleMuIsoL3IsoFiltered"); 
   MCTurnOnL2Old->SetLineColor(2);
   MCTurnOnL2New->SetLineColor(4);
-  MCTurnOnL2Old->SetTitle("L2 175");
+  MCTurnOnL2Old->SetTitle("L2 Fast Sim 184");
   MCTurnOnL2Old->GetYaxis()->SetRangeUser(0.,105.);
   MCTurnOnL2Old->GetXaxis()->SetRangeUser(5.,40.);
   MCTurnOnL2Old->SetLineWidth(2);
@@ -110,7 +110,7 @@ void comparoldnew()
   c1->SaveAs("L2FastFull.gif");
   MCTurnOnL2IsoOld->SetLineColor(2);
   MCTurnOnL2IsoNew->SetLineColor(4);
-  MCTurnOnL2IsoOld->SetTitle("L2 Iso 175");
+  MCTurnOnL2IsoOld->SetTitle("L2 Iso Fast Sim 184");
   MCTurnOnL2IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   MCTurnOnL2IsoOld->SetLineWidth(2);
   MCTurnOnL2IsoNew->SetTitle("L2 Iso 183");
@@ -123,7 +123,7 @@ void comparoldnew()
   c1->SaveAs("L2IsoFastFull.gif");
   MCTurnOnL3Old->SetLineColor(2);
   MCTurnOnL3New->SetLineColor(4);
-  MCTurnOnL3Old->SetTitle("L3 175");
+  MCTurnOnL3Old->SetTitle("L3 Fast Sim 184");
   MCTurnOnL3Old->GetYaxis()->SetRangeUser(0.,105.);
   MCTurnOnL3Old->GetXaxis()->SetRangeUser(5.,40.);
   MCTurnOnL3Old->SetLineWidth(2);
@@ -137,7 +137,7 @@ void comparoldnew()
   c1->SaveAs("L3FastFull.gif");
   MCTurnOnL3IsoOld->SetLineColor(2);
   MCTurnOnL3IsoNew->SetLineColor(4);
-  MCTurnOnL3IsoOld->SetTitle("L3 Iso 175");
+  MCTurnOnL3IsoOld->SetTitle("L3 Iso Fast Sim 184");
   MCTurnOnL3IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   MCTurnOnL3IsoOld->GetXaxis()->SetRangeUser(5.,40.);
   MCTurnOnL3IsoOld->SetLineWidth(2);
@@ -153,7 +153,7 @@ void comparoldnew()
 
   MCEtaEffL1Old->SetLineColor(2);
   MCEtaEffL1New->SetLineColor(4);
-  MCEtaEffL1Old->SetTitle("L1 175");
+  MCEtaEffL1Old->SetTitle("L1 Fast Sim 184");
   MCEtaEffL1Old->GetYaxis()->SetRangeUser(0.,105.);
   MCEtaEffL1Old->GetXaxis()->SetRangeUser(-2.1,2.1);
   MCEtaEffL1Old->GetXaxis()->SetTitle("Eta");
@@ -168,7 +168,7 @@ void comparoldnew()
   c1->SaveAs("L1FastFullEta.gif");
   MCEtaEffL2Old->SetLineColor(2);
   MCEtaEffL2New->SetLineColor(4);
-  MCEtaEffL2Old->SetTitle("L2 175");
+  MCEtaEffL2Old->SetTitle("L2 Fast Sim 184");
   MCEtaEffL2Old->GetYaxis()->SetRangeUser(0.,105.);
   MCEtaEffL2Old->GetXaxis()->SetRangeUser(-2.1,2.1);
   MCEtaEffL2Old->GetXaxis()->SetTitle("Eta");
@@ -183,7 +183,7 @@ void comparoldnew()
   c1->SaveAs("L2FastFullEta.gif");
   MCEtaEffL2IsoOld->SetLineColor(2);
   MCEtaEffL2IsoNew->SetLineColor(4);
-  MCEtaEffL2IsoOld->SetTitle("L2 Iso 175");
+  MCEtaEffL2IsoOld->SetTitle("L2 Iso Fast Sim 184");
   MCEtaEffL2IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   MCEtaEffL2IsoOld->GetXaxis()->SetRangeUser(-2.1,2.1);
   MCEtaEffL2IsoOld->GetXaxis()->SetTitle("Eta");
@@ -198,7 +198,7 @@ void comparoldnew()
   c1->SaveAs("L2IsoFastFullEta.gif");
   MCEtaEffL3Old->SetLineColor(2);
   MCEtaEffL3New->SetLineColor(4);
-  MCEtaEffL3Old->SetTitle("L3 175");
+  MCEtaEffL3Old->SetTitle("L3 Fast Sim 184");
   MCEtaEffL3Old->GetYaxis()->SetRangeUser(0.,105.);
   MCEtaEffL3Old->GetXaxis()->SetRangeUser(-2.1,2.1);
   MCEtaEffL3Old->GetXaxis()->SetTitle("Eta");
@@ -213,7 +213,7 @@ void comparoldnew()
   c1->SaveAs("L3FastFullEta.gif");
   MCEtaEffL3IsoOld->SetLineColor(2);
   MCEtaEffL3IsoNew->SetLineColor(4);
-  MCEtaEffL3IsoOld->SetTitle("L3 Iso 175");
+  MCEtaEffL3IsoOld->SetTitle("L3 Iso Fast Sim 184");
   MCEtaEffL3IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   MCEtaEffL3IsoOld->GetXaxis()->SetRangeUser(-2.1,2.1);
   MCEtaEffL3IsoOld->SetLineWidth(2);
@@ -228,7 +228,7 @@ void comparoldnew()
 
   MCPhiEffL1Old->SetLineColor(2);
   MCPhiEffL1New->SetLineColor(4);
-  MCPhiEffL1Old->SetTitle("L1 175");
+  MCPhiEffL1Old->SetTitle("L1 Fast Sim 184");
   MCPhiEffL1Old->GetYaxis()->SetRangeUser(0.,105.);
   MCPhiEffL1Old->SetLineWidth(2);
   MCPhiEffL1New->SetTitle("L1 183");
@@ -242,7 +242,7 @@ void comparoldnew()
 
   MCPhiEffL2Old->SetLineColor(2);
   MCPhiEffL2New->SetLineColor(4);
-  MCPhiEffL2Old->SetTitle("L2 175");
+  MCPhiEffL2Old->SetTitle("L2 Fast Sim 184");
   MCPhiEffL2Old->GetYaxis()->SetRangeUser(0.,105.);
   MCPhiEffL2Old->SetLineWidth(2);
   MCPhiEffL2New->SetTitle("L2 183");
@@ -255,7 +255,7 @@ void comparoldnew()
   c1->SaveAs("L2FastFullPhi.gif");
   MCPhiEffL2IsoOld->SetLineColor(2);
   MCPhiEffL2IsoNew->SetLineColor(4);
-  MCPhiEffL2IsoOld->SetTitle("L2 Iso 175");
+  MCPhiEffL2IsoOld->SetTitle("L2 Iso Fast Sim 184");
   MCPhiEffL2IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   MCPhiEffL2IsoOld->SetLineWidth(2);
   MCPhiEffL2IsoNew->SetTitle("L2 Iso 183");
@@ -268,7 +268,7 @@ void comparoldnew()
   c1->SaveAs("L2IsoFastFullPhi.gif");
   MCPhiEffL3Old->SetLineColor(2);
   MCPhiEffL3New->SetLineColor(4);
-  MCPhiEffL3Old->SetTitle("L3 175");
+  MCPhiEffL3Old->SetTitle("L3 Fast Sim 184");
   MCPhiEffL3Old->GetYaxis()->SetRangeUser(0.,105.);
   MCPhiEffL3Old->SetLineWidth(2);
   MCPhiEffL3New->SetTitle("L3 183");
@@ -281,7 +281,7 @@ void comparoldnew()
   c1->SaveAs("L3FastFullPhi.gif");
   MCPhiEffL3IsoOld->SetLineColor(2);
   MCPhiEffL3IsoNew->SetLineColor(4);
-  MCPhiEffL3IsoOld->SetTitle("L3 Iso 175");
+  MCPhiEffL3IsoOld->SetTitle("L3 Iso Fast Sim 184");
   MCPhiEffL3IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   MCPhiEffL3IsoOld->SetLineWidth(2);
   MCPhiEffL3IsoNew->SetTitle("L3 Iso 183");
@@ -308,7 +308,7 @@ void comparoldnew()
   if (RECOTurnOnL1Old) {
   RECOTurnOnL1Old->SetLineColor(2);
   RECOTurnOnL1New->SetLineColor(4);
-  RECOTurnOnL1Old->SetTitle("L1 175");
+  RECOTurnOnL1Old->SetTitle("L1 Fast Sim 184");
   RECOTurnOnL1Old->GetYaxis()->SetRangeUser(0.,105.);
   RECOTurnOnL1Old->GetXaxis()->SetRangeUser(3.,40.);
   RECOTurnOnL1Old->SetLineWidth(2);
@@ -341,23 +341,23 @@ void comparoldnew()
 
   New->cd("Rates/Distributions/SingleMuIso")  ;
   gDirectory->ls();
-  TH1F *RECOTurnOnL2Full= (TH1F *)gDirectory->Get("RECOTurnOn_SingleMuIsoL2PreFiltered"); 
-  TH1F *RECOTurnOnL2IsoFull= (TH1F *)gDirectory->Get("RECOTurnOn_SingleMuIsoL2IsoFiltered"); 
-  TH1F *RECOTurnOnL3Full= (TH1F *)gDirectory->Get("RECOTurnOn_SingleMuIsoL3PreFiltered"); 
-  TH1F *RECOTurnOnL3IsoFull= (TH1F *)gDirectory->Get("RECOTurnOn_SingleMuIsoL3IsoFiltered"); 
-  TH1F *RECOEtaEffL1Full= (TH1F *)gDirectory->Get("RECOeta_SingleMuIsoL1Filtered"); 
-  TH1F *RECOEtaEffL2Full= (TH1F *)gDirectory->Get("RECOeta_SingleMuIsoL2PreFiltered"); 
-  TH1F *RECOEtaEffL2IsoFull= (TH1F *)gDirectory->Get("RECOeta_SingleMuIsoL2IsoFiltered"); 
-  TH1F *RECOEtaEffL3Full= (TH1F *)gDirectory->Get("RECOeta_SingleMuIsoL3PreFiltered"); 
-  TH1F *RECOEtaEffL3IsoFull= (TH1F *)gDirectory->Get("RECOeta_SingleMuIsoL3IsoFiltered"); 
-  TH1F *RECOPhiEffL1Full= (TH1F *)gDirectory->Get("RECOphi_SingleMuIsoL1Filtered"); 
-  TH1F *RECOPhiEffL2Full= (TH1F *)gDirectory->Get("RECOphi_SingleMuIsoL2PreFiltered"); 
-  TH1F *RECOPhiEffL2IsoFull= (TH1F *)gDirectory->Get("RECOphi_SingleMuIsoL2IsoFiltered"); 
-  TH1F *RECOPhiEffL3Full= (TH1F *)gDirectory->Get("RECOphi_SingleMuIsoL3PreFiltered"); 
-  TH1F *RECOPhiEffL3IsoFull= (TH1F *)gDirectory->Get("RECOphi_SingleMuIsoL3IsoFiltered"); 
+  TH1F *RECOTurnOnL2New= (TH1F *)gDirectory->Get("RECOTurnOn_SingleMuIsoL2PreFiltered"); 
+  TH1F *RECOTurnOnL2IsoNew= (TH1F *)gDirectory->Get("RECOTurnOn_SingleMuIsoL2IsoFiltered"); 
+  TH1F *RECOTurnOnL3New= (TH1F *)gDirectory->Get("RECOTurnOn_SingleMuIsoL3PreFiltered"); 
+  TH1F *RECOTurnOnL3IsoNew= (TH1F *)gDirectory->Get("RECOTurnOn_SingleMuIsoL3IsoFiltered"); 
+  TH1F *RECOEtaEffL1New= (TH1F *)gDirectory->Get("RECOeta_SingleMuIsoL1Filtered"); 
+  TH1F *RECOEtaEffL2New= (TH1F *)gDirectory->Get("RECOeta_SingleMuIsoL2PreFiltered"); 
+  TH1F *RECOEtaEffL2IsoNew= (TH1F *)gDirectory->Get("RECOeta_SingleMuIsoL2IsoFiltered"); 
+  TH1F *RECOEtaEffL3New= (TH1F *)gDirectory->Get("RECOeta_SingleMuIsoL3PreFiltered"); 
+  TH1F *RECOEtaEffL3IsoNew= (TH1F *)gDirectory->Get("RECOeta_SingleMuIsoL3IsoFiltered"); 
+  TH1F *RECOPhiEffL1New= (TH1F *)gDirectory->Get("RECOphi_SingleMuIsoL1Filtered"); 
+  TH1F *RECOPhiEffL2New= (TH1F *)gDirectory->Get("RECOphi_SingleMuIsoL2PreFiltered"); 
+  TH1F *RECOPhiEffL2IsoNew= (TH1F *)gDirectory->Get("RECOphi_SingleMuIsoL2IsoFiltered"); 
+  TH1F *RECOPhiEffL3New= (TH1F *)gDirectory->Get("RECOphi_SingleMuIsoL3PreFiltered"); 
+  TH1F *RECOPhiEffL3IsoNew= (TH1F *)gDirectory->Get("RECOphi_SingleMuIsoL3IsoFiltered"); 
   RECOTurnOnL2Old->SetLineColor(2);
   RECOTurnOnL2New->SetLineColor(4);
-  RECOTurnOnL2Old->SetTitle("L2 175");
+  RECOTurnOnL2Old->SetTitle("L2 Fast Sim 184");
   RECOTurnOnL2Old->GetYaxis()->SetRangeUser(0.,105.);
   RECOTurnOnL2Old->GetXaxis()->SetRangeUser(5.,40.);
   RECOTurnOnL2Old->SetLineWidth(2);
@@ -371,7 +371,7 @@ void comparoldnew()
   c1->SaveAs("L2FastFullRECO.gif");
   RECOTurnOnL2IsoOld->SetLineColor(2);
   RECOTurnOnL2IsoNew->SetLineColor(4);
-  RECOTurnOnL2IsoOld->SetTitle("L2 Iso 175");
+  RECOTurnOnL2IsoOld->SetTitle("L2 Iso Fast Sim 184");
   RECOTurnOnL2IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   RECOTurnOnL2IsoOld->GetXaxis()->SetRangeUser(5.,40.);
   RECOTurnOnL2IsoOld->SetLineWidth(2);
@@ -385,7 +385,7 @@ void comparoldnew()
   c1->SaveAs("L2IsoFastFullRECO.gif");
   RECOTurnOnL3Old->SetLineColor(2);
   RECOTurnOnL3New->SetLineColor(4);
-  RECOTurnOnL3Old->SetTitle("L3 175");
+  RECOTurnOnL3Old->SetTitle("L3 Fast Sim 184");
   RECOTurnOnL3Old->GetYaxis()->SetRangeUser(0.,105.);
   RECOTurnOnL3Old->GetXaxis()->SetRangeUser(5.,40.);
   RECOTurnOnL3Old->SetLineWidth(2);
@@ -399,7 +399,7 @@ void comparoldnew()
   c1->SaveAs("L3FastFullRECO.gif");
   RECOTurnOnL3IsoOld->SetLineColor(2);
   RECOTurnOnL3IsoNew->SetLineColor(4);
-  RECOTurnOnL3IsoOld->SetTitle("L3 Iso 175");
+  RECOTurnOnL3IsoOld->SetTitle("L3 Iso Fast Sim 184");
   RECOTurnOnL3IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   RECOTurnOnL3IsoOld->GetXaxis()->SetRangeUser(5.,40.);
   RECOTurnOnL3IsoOld->SetLineWidth(2);
@@ -415,7 +415,7 @@ void comparoldnew()
 
   RECOEtaEffL1Old->SetLineColor(2);
   RECOEtaEffL1New->SetLineColor(4);
-  RECOEtaEffL1Old->SetTitle("L1 175");
+  RECOEtaEffL1Old->SetTitle("L1 Fast Sim 184");
   RECOEtaEffL1Old->GetYaxis()->SetRangeUser(0.,105.);
   RECOEtaEffL1Old->GetXaxis()->SetRangeUser(-2.1,2.1);
   RECOEtaEffL1Old->GetXaxis()->SetTitle("Eta");
@@ -430,7 +430,7 @@ void comparoldnew()
   c1->SaveAs("L1FastFullEtaRECO.gif");
   RECOEtaEffL2Old->SetLineColor(2);
   RECOEtaEffL2New->SetLineColor(4);
-  RECOEtaEffL2Old->SetTitle("L2 175");
+  RECOEtaEffL2Old->SetTitle("L2 Fast Sim 184");
   RECOEtaEffL2Old->GetYaxis()->SetRangeUser(0.,105.);
   RECOEtaEffL2Old->GetXaxis()->SetTitle("Eta");
   RECOEtaEffL2Old->GetXaxis()->SetRangeUser(-2.1,2.1);
@@ -445,7 +445,7 @@ void comparoldnew()
   c1->SaveAs("L2FastFullEtaRECO.gif");
   RECOEtaEffL2IsoOld->SetLineColor(2);
   RECOEtaEffL2IsoNew->SetLineColor(4);
-  RECOEtaEffL2IsoOld->SetTitle("L2 Iso 175");
+  RECOEtaEffL2IsoOld->SetTitle("L2 Iso Fast Sim 184");
   RECOEtaEffL2IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   RECOEtaEffL2IsoOld->GetXaxis()->SetTitle("Eta");
   RECOEtaEffL2IsoOld->GetXaxis()->SetRangeUser(-2.1,2.1);
@@ -460,7 +460,7 @@ void comparoldnew()
   c1->SaveAs("L2IsoFastFullEtaRECO.gif");
   RECOEtaEffL3Old->SetLineColor(2);
   RECOEtaEffL3New->SetLineColor(4);
-  RECOEtaEffL3Old->SetTitle("L3 175");
+  RECOEtaEffL3Old->SetTitle("L3 Fast Sim 184");
   RECOEtaEffL3Old->GetYaxis()->SetRangeUser(0.,105.);
   RECOEtaEffL3Old->GetXaxis()->SetRangeUser(-2.1,2.1);
   RECOEtaEffL3Old->GetXaxis()->SetTitle("Eta");
@@ -475,7 +475,7 @@ void comparoldnew()
   c1->SaveAs("L3FastFullEtaRECO.gif");
   RECOEtaEffL3IsoOld->SetLineColor(2);
   RECOEtaEffL3IsoNew->SetLineColor(4);
-  RECOEtaEffL3IsoOld->SetTitle("L3 Iso 175");
+  RECOEtaEffL3IsoOld->SetTitle("L3 Iso Fast Sim 184");
   RECOEtaEffL3IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   RECOEtaEffL3IsoOld->GetXaxis()->SetRangeUser(-2.1,2.1);
   RECOEtaEffL3IsoOld->SetLineWidth(2);
@@ -490,7 +490,7 @@ void comparoldnew()
 
   RECOPhiEffL1Old->SetLineColor(2);
   RECOPhiEffL1New->SetLineColor(4);
-  RECOPhiEffL1Old->SetTitle("L1 175");
+  RECOPhiEffL1Old->SetTitle("L1 Fast Sim 184");
   RECOPhiEffL1Old->GetYaxis()->SetRangeUser(0.,105.);
   RECOPhiEffL1Old->SetLineWidth(2);
   RECOPhiEffL1New->SetTitle("L1 183");
@@ -504,7 +504,7 @@ void comparoldnew()
 
   RECOPhiEffL2Old->SetLineColor(2);
   RECOPhiEffL2New->SetLineColor(4);
-  RECOPhiEffL2Old->SetTitle("L2 175");
+  RECOPhiEffL2Old->SetTitle("L2 Fast Sim 184");
   RECOPhiEffL2Old->GetYaxis()->SetRangeUser(0.,105.);
   RECOPhiEffL2Old->SetLineWidth(2);
   RECOPhiEffL2New->SetTitle("L2 183");
@@ -517,7 +517,7 @@ void comparoldnew()
   c1->SaveAs("L2FastFullPhiRECO.gif");
   RECOPhiEffL2IsoOld->SetLineColor(2);
   RECOPhiEffL2IsoNew->SetLineColor(4);
-  RECOPhiEffL2IsoOld->SetTitle("L2 Iso 175");
+  RECOPhiEffL2IsoOld->SetTitle("L2 Iso Fast Sim 184");
   RECOPhiEffL2IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   RECOPhiEffL2IsoOld->SetLineWidth(2);
   RECOPhiEffL2IsoNew->SetTitle("L2 Iso 183");
@@ -530,7 +530,7 @@ void comparoldnew()
   c1->SaveAs("L2IsoFastFullPhiRECO.gif");
   RECOPhiEffL3Old->SetLineColor(2);
   RECOPhiEffL3New->SetLineColor(4);
-  RECOPhiEffL3Old->SetTitle("L3 175");
+  RECOPhiEffL3Old->SetTitle("L3 Fast Sim 184");
   RECOPhiEffL3Old->GetYaxis()->SetRangeUser(0.,105.);
   RECOPhiEffL3Old->SetLineWidth(2);
   RECOPhiEffL3New->SetTitle("L3 183");
@@ -543,7 +543,7 @@ void comparoldnew()
   c1->SaveAs("L3FastFullPhiRECO.gif");
   RECOPhiEffL3IsoOld->SetLineColor(2);
   RECOPhiEffL3IsoNew->SetLineColor(4);
-  RECOPhiEffL3IsoOld->SetTitle("L3 Iso 175");
+  RECOPhiEffL3IsoOld->SetTitle("L3 Iso Fast Sim 184");
   RECOPhiEffL3IsoOld->GetYaxis()->SetRangeUser(0.,105.);
   RECOPhiEffL3IsoOld->SetLineWidth(2);
   RECOPhiEffL3IsoNew->SetTitle("L3 Iso 183");
