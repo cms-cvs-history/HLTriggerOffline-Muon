@@ -246,7 +246,12 @@ void HLTMuonGenericRate::analyze(const Event & event ){
       // HLT filling
       for (unsigned int i=0; i<modules_in_this_event; i++) {
             unsigned nFound = 0;
-            double DR = ( (hltsize>2 && i>2) || i==1 ) ? 0.015 : 0.05;
+	    double DR = 0;
+	    if ( i < ( modules_in_this_event / 2 ) ) {
+	      DR = 0.050; 
+	    } else {
+	      DR = 0.015;
+	    }
             for (unsigned int k=0; k<hltcands[i].size(); k++) {
                   RecoChargedCandidateRef candref = RecoChargedCandidateRef(hltcands[i][k]);
                   TrackRef tk = candref->get<TrackRef>();
