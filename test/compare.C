@@ -29,7 +29,7 @@ void compare()
 {
 
   TFile *Old = TFile::Open("ZmumuAnalyzer_183.root","READ");
-  TFile *New = TFile::Open("Result.root","READ");
+  TFile *New = TFile::Open("PostProcessor.root","READ");
 
   gStyle->SetOptStat(0);
   gStyle->SetErrorX(0.5);
