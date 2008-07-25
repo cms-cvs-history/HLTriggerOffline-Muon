@@ -11,25 +11,25 @@
 
 //// Set input files and options!! ////
 
-TString titleOld = "CMSSW_2_1_0_pre6, 4.0 T";
+TString titleOld = "CMSSW_1_8_3, 4.0 T";
 TString titleNew = "CMSSW_2_1_0_pre6, 3.8 T";
 
 TString sampleType = " (Zmumu)";
 TString fileType   = ".pdf";
-bool removeHlt = false;
+bool removeHlt = true;
 
-TString pathRateEfficienciesOld = "";
-TString pathRateEfficienciesNew = "";
-TString pathDistributionsOld = "";
-TString pathDistributionsNew = "";
+TString pathRateEfficienciesOld = "/Rates/RateEfficiencies/SingleMuIso/";
+TString pathRateEfficienciesNew = "/DQMData/HLT/Muon/Distributions/hltSingleMuIso/";
+TString pathDistributionsOld = "/Rates/Distributions/SingleMuIso/";
+TString pathDistributionsNew = "/DQMData/HLT/Muon/Distributions/hltSingleMuIso/";
 
 ///////////////////////////////////////
 
 void compare()
 {
 
-  TFile *Old = TFile::Open("ZMM_40.root","READ");
-  TFile *New = TFile::Open("ZMM_38.root","READ");
+  TFile *Old = TFile::Open("ZmumuAnalyzer_183.root","READ");
+  TFile *New = TFile::Open("Result.root","READ");
 
   gStyle->SetOptStat(0);
   gStyle->SetErrorX(0.5);
@@ -50,10 +50,8 @@ void compare()
 
   int counter = 0;
   vector<TString> histNames;
-  TString path;
 
   histNames.clear();
-  path = "/Rates/RateEfficiencies/hltSingleMuIso/";
   histNames.push_back("MCTurnOn_hltSingleMuIsoL1Filtered"); 
   for ( int i = 0; i < histNames.size(); i++ ) {
     TString pathOld = pathRateEfficienciesOld + histNames.at(i);
@@ -65,7 +63,6 @@ void compare()
   }
   
   histNames.clear();
-  path = "/Rates/Distributions/hltSingleMuIso/";
   histNames.push_back("MCTurnOn_hltSingleMuIsoL2PreFiltered"); 
   histNames.push_back("MCTurnOn_hltSingleMuIsoL2IsoFiltered"); 
   histNames.push_back("MCTurnOn_hltSingleMuIsoL3PreFiltered"); 
@@ -83,14 +80,13 @@ void compare()
   for ( int i = 0; i < histNames.size(); i++ ) {
     TString pathOld = pathDistributionsOld + histNames.at(i);
     if ( removeHlt ) pathOld.ReplaceAll("hlt","");
-    TString pathNew = pathDistributionsOld + histNames.at(i);
+    TString pathNew = pathDistributionsNew + histNames.at(i);
     hOld = (TH1F *)dirOld->Get(pathOld); 
     hNew = (TH1F *)dirNew->Get(pathNew); 
     plot( hOld, hNew, ++counter );
   }
 
   histNames.clear();
-  path = "/Rates/RateEfficiencies/hltSingleMuIso/";
   histNames.push_back("RECOTurnOn_hltSingleMuIsoL1Filtered"); 
   for ( int i = 0; i < histNames.size(); i++ ) {
     TString pathOld = pathRateEfficienciesOld + histNames.at(i);
@@ -102,7 +98,6 @@ void compare()
   }
 
   histNames.clear();
-  path = "/Rates/Distributions/hltSingleMuIso/";
   histNames.push_back("RECOTurnOn_hltSingleMuIsoL2PreFiltered"); 
   histNames.push_back("RECOTurnOn_hltSingleMuIsoL2IsoFiltered"); 
   histNames.push_back("RECOTurnOn_hltSingleMuIsoL3PreFiltered"); 
@@ -120,7 +115,7 @@ void compare()
   for ( int i = 0; i < histNames.size(); i++ ) {
     TString pathOld = pathDistributionsOld + histNames.at(i);
     if ( removeHlt ) pathOld.ReplaceAll("hlt","");
-    TString pathNew = pathDistributionsOld + histNames.at(i);
+    TString pathNew = pathDistributionsNew + histNames.at(i);
     hOld = (TH1F *)dirOld->Get(pathOld); 
     hNew = (TH1F *)dirNew->Get(pathNew); 
     plot( hOld, hNew, ++counter );
