@@ -28,7 +28,7 @@ TString pathDistributionsNew = "/DQMData/HLT/Muon/Distributions/hltSingleMuIso/"
 void compare()
 {
 
-  TFile *Old = TFile::Open("ZmumuAnalyzer_183.root","READ");
+  TFile *Old = TFile::Open("~/public/histosRelVal/ZmumuAnalyzer_183.root","READ");
   TFile *New = TFile::Open("PostProcessor.root","READ");
 
   gStyle->SetOptStat(0);
@@ -120,6 +120,12 @@ void compare()
     hNew = (TH1F *)dirNew->Get(pathNew); 
     plot( hOld, hNew, ++counter );
   }
+
+  if ( fileType == ".pdf" ) {
+    gSystem->Exec("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf [0-9]*.pdf");
+    gSystem->Exec("rm [0-9]*.pdf");
+  }
+
 }
 
 
