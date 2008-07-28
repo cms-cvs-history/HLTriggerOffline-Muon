@@ -11,25 +11,39 @@
 
 //// Set input files and options!! ////
 
-TString titleOld = "CMSSW_1_8_3, 4.0 T";
-TString titleNew = "CMSSW_2_1_0_pre6, 3.8 T";
-
-TString sampleType = " (Zmumu)";
+TString titleOld;
+TString titleNew;
+TString sampleType;
 TString fileType   = ".pdf";
-bool removeHlt = true;
 
-TString pathRateEfficienciesOld = "/Rates/RateEfficiencies/SingleMuIso/";
 TString pathRateEfficienciesNew = "/DQMData/HLT/Muon/Distributions/hltSingleMuIso/";
-TString pathDistributionsOld = "/Rates/Distributions/SingleMuIso/";
 TString pathDistributionsNew = "/DQMData/HLT/Muon/Distributions/hltSingleMuIso/";
+TString pathRateEfficienciesOld = "/DQMData/HLT/Muon/Distributions/hltSingleMuIso/";
+TString pathDistributionsOld = "/DQMData/HLT/Muon/Distributions/hltSingleMuIso/";
 
 ///////////////////////////////////////
 
-void compare()
+void compare( TString fileNameOld, TString fileNameNew, bool useNonDqmForOld )
 {
 
-  TFile *Old = TFile::Open("~/public/histosRelVal/ZmumuAnalyzer_183.root","READ");
-  TFile *New = TFile::Open("PostProcessor.root","READ");
+  TFile *Old = TFile::Open(fileNameOld,"READ");
+  TFile *New = TFile::Open(fileNameNew,"READ");
+
+  if ( fileNameOld.BeginsWith("WM") ) sampleType = " (Wmu)";
+  else if ( fileNameOld.BeginsWith("ZMM") ) sampleType = " (Zmumu)";
+  else if ( fileNameOld.BeginsWith("TTbar") ) sampleType = " (TTbar)";
+
+  if ( useNonDqmForOld == true ) {
+    TString pathRateEfficienciesOld = "/Rates/RateEfficiencies/SingleMuIso/";
+    TString pathDistributionsOld = "/Rates/Distributions/SingleMuIso/";
+  }
+
+  TString version = fileNameOld("[0-9].*[0-9]");
+  titleOld = version(0,1) + "_" + version(1,1) + "_" + version(2,1);
+  if ( version.Contains("pre") ) titleOld += "_" + version("pre.*");
+  version = fileNameNew("[0-9].*[0-9]");
+  titleNew = version(0,1) + "_" + version(1,1) + "_" + version(2,1);
+  if ( version.Contains("pre") ) titleNew += "_" + version("pre.*");
 
   gStyle->SetOptStat(0);
   gStyle->SetErrorX(0.5);
@@ -55,7 +69,7 @@ void compare()
   histNames.push_back("MCTurnOn_hltSingleMuIsoL1Filtered"); 
   for ( int i = 0; i < histNames.size(); i++ ) {
     TString pathOld = pathRateEfficienciesOld + histNames.at(i);
-    if ( removeHlt ) pathOld.ReplaceAll("hlt","");
+    if ( useNonDqmForOld ) pathOld.ReplaceAll("hlt","");
     TString pathNew = pathRateEfficienciesNew + histNames.at(i);
     hOld = (TH1F *)dirOld->Get(pathOld); 
     hNew = (TH1F *)dirNew->Get(pathNew); 
@@ -79,7 +93,7 @@ void compare()
   histNames.push_back("MCphi_hltSingleMuIsoL3IsoFiltered"); 
   for ( int i = 0; i < histNames.size(); i++ ) {
     TString pathOld = pathDistributionsOld + histNames.at(i);
-    if ( removeHlt ) pathOld.ReplaceAll("hlt","");
+    if ( useNonDqmForOld ) pathOld.ReplaceAll("hlt","");
     TString pathNew = pathDistributionsNew + histNames.at(i);
     hOld = (TH1F *)dirOld->Get(pathOld); 
     hNew = (TH1F *)dirNew->Get(pathNew); 
@@ -90,7 +104,7 @@ void compare()
   histNames.push_back("RECOTurnOn_hltSingleMuIsoL1Filtered"); 
   for ( int i = 0; i < histNames.size(); i++ ) {
     TString pathOld = pathRateEfficienciesOld + histNames.at(i);
-    if ( removeHlt ) pathOld.ReplaceAll("hlt","");
+    if ( useNonDqmForOld ) pathOld.ReplaceAll("hlt","");
     TString pathNew = pathRateEfficienciesNew + histNames.at(i);
     hOld = (TH1F *)dirOld->Get(pathOld); 
     hNew = (TH1F *)dirNew->Get(pathNew); 
@@ -114,7 +128,7 @@ void compare()
   histNames.push_back("RECOphi_hltSingleMuIsoL3IsoFiltered"); 
   for ( int i = 0; i < histNames.size(); i++ ) {
     TString pathOld = pathDistributionsOld + histNames.at(i);
-    if ( removeHlt ) pathOld.ReplaceAll("hlt","");
+    if ( useNonDqmForOld ) pathOld.ReplaceAll("hlt","");
     TString pathNew = pathDistributionsNew + histNames.at(i);
     hOld = (TH1F *)dirOld->Get(pathOld); 
     hNew = (TH1F *)dirNew->Get(pathNew); 
@@ -156,7 +170,7 @@ void plot( TH1* hOld, TH1* hNew, int counter ) {
   hOld->GetYaxis()->SetTitle(yTitle);
 
   // Fix bug in analyzer that incorrectly sets some x-axis titles
-  TString xTitle = hOld->GetXaxis()->GetTitle(); 
+  TString xTitle = hNew->GetXaxis()->GetTitle(); 
   if ( xTitle.Contains("Muon #") && 
        !xTitle.Contains("Gen") && !xTitle.Contains("Reco") )
     if (genReco.Contains("Gen")) hOld->GetXaxis()->SetTitle("Gen "+xTitle);
