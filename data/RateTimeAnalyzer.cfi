@@ -1,0 +1,152 @@
+module RateAnalyzer = MuonTriggerRateTimeAnalyzer 
+{
+      untracked bool DQMStore = true
+      untracked string RootFileName = ""
+      bool UseMuonFromGenerator = true
+      untracked InputTag GenLabel = source
+      bool UseMuonFromReco = true
+      untracked InputTag RecoLabel = globalMuons
+      double MaxTime = 150.
+      uint32 TimeNbins = 150
+      InputTag TimerLabel = hltTimer
+      InputTag TriggerResultLabel = TriggerResults::HLT
+
+      untracked PSet TimingModules =
+      {
+          untracked vstring MuonDigiModules = {"muonCSCDigis","muonDTDigis","muonRPCDigis"}
+          untracked vstring CaloDigiModules = {"ecalDigis","ecalPreshowerDigis","hcalDigis"}
+          untracked vstring TrackerDigiModules = {"siPixelDigis","siStripDigis"}
+          untracked vstring MuonLocalRecModules = {"dt1DRecHits","dt4DSegments","rpcRecHits","csc2DRecHits","cscSegments"}
+          untracked vstring MuonL2RecModules = {"hltL2MuonSeeds","hltL2Muons","hltL2MuonCandidates","SingleMuIsoL2PreFiltered"}
+          untracked vstring CaloRecModules = {"ecalRegionalMuonsWeightUncalibRecHit","ecalRegionalMuonsRecHit","ecalPreshowerRecHit","hbhereco","horeco","hfreco","towerMakerForMuons","caloTowersForMuons"}
+          untracked vstring MuonL2IsoModules = {"hltL2MuonIsolations","SingleMuIsoL2IsoFiltered"}
+          untracked vstring TrackerRecModules = {"siPixelClusters","siPixelRecHits","siStripClusters","siStripMatchedRecHits"}
+          untracked vstring MuonL3RecModules = {"hltL3Muons","hltL3MuonCandidates","SingleMuIsoL3PreFiltered"}
+          untracked vstring MuonL3IsoModules = {"pixelTracks","hltL3MuonIsolations","SingleMuIsoL3IsoFiltered"}  
+      }
+
+      VPSet TriggerCollection = 
+      {
+         {
+           InputTag L1CollectionLabel = hltSingleMuIsoL1Filtered::HLT
+           VInputTag HLTCollectionLabels = {   
+             hltSingleMuIsoL2PreFiltered::HLT, hltSingleMuIsoL2IsoFiltered::HLT,
+             hltSingleMuIsoL3PreFiltered::HLT, hltSingleMuIsoL3IsoFiltered::HLT
+           }    
+           double L1ReferenceThreshold = 7.
+           double HLTReferenceThreshold = 7.
+           uint32 NumberOfObjects = 1
+         },
+         {
+           InputTag L1CollectionLabel = hltSingleMuNoIsoL1Filtered::HLT
+           VInputTag HLTCollectionLabels = {   
+             hltSingleMuNoIsoL2PreFiltered::HLT, 
+             hltSingleMuNoIsoL3PreFiltered::HLT 
+           }  
+           double L1ReferenceThreshold = 7.
+           double HLTReferenceThreshold = 7.
+           uint32 NumberOfObjects = 1
+         },
+         {
+           InputTag L1CollectionLabel = hltDiMuonNoIsoL1Filtered::HLT
+           VInputTag HLTCollectionLabels = {   
+             hltDiMuonNoIsoL2PreFiltered::HLT, hltDiMuonNoIsoL3PreFiltered::HLT
+           }    
+           double L1ReferenceThreshold = 3.
+           double HLTReferenceThreshold = 7.
+           uint32 NumberOfObjects = 2
+         },
+         {
+           InputTag L1CollectionLabel = hltDiMuonIsoL1Filtered::HLT
+           VInputTag HLTCollectionLabels = {   
+             hltDiMuonIsoL2PreFiltered::HLT,hltDiMuonIsoL2IsoFiltered::HLT,
+             hltDiMuonIsoL3PreFiltered::HLT,hltDiMuonIsoL3IsoFiltered::HLT
+           }      
+           double L1ReferenceThreshold = 3.
+           double HLTReferenceThreshold = 3.
+           uint32 NumberOfObjects = 2
+         },
+         {
+           InputTag L1CollectionLabel = hltJpsiMML1Filtered::HLT
+           VInputTag HLTCollectionLabels = {   
+             hltJpsiMML2Filtered::HLT,hltJpsiMML3Filtered::HLT
+           }      
+           double L1ReferenceThreshold = 3.
+           double HLTReferenceThreshold = 3.
+           uint32 NumberOfObjects = 2
+         },
+         {
+           InputTag L1CollectionLabel = hltZMML1Filtered::HLT
+           VInputTag HLTCollectionLabels = {   
+             hltZMML2Filtered::HLT,hltZMML3Filtered::HLT
+           }      
+           double L1ReferenceThreshold = 3.
+           double HLTReferenceThreshold = 3.
+           uint32 NumberOfObjects = 2
+         },
+         {
+           InputTag L1CollectionLabel = hltSingleMuPrescale3L1Filtered::HLT 
+           VInputTag HLTCollectionLabels = {
+             hltSingleMuPrescale3L2PreFiltered::HLT,
+             hltSingleMuPrescale3L3PreFiltered::HLT
+           } 
+           double L1ReferenceThreshold = 3.
+           double HLTReferenceThreshold = 3.
+           uint32 NumberOfObjects = 1
+         },
+         {
+           InputTag L1CollectionLabel = hltSingleMuPrescale5L1Filtered::HLT 
+           VInputTag HLTCollectionLabels = {
+             hltSingleMuPrescale5L2PreFiltered::HLT,
+             hltSingleMuPrescale5L3PreFiltered::HLT
+           } 
+           double L1ReferenceThreshold = 3.
+           double HLTReferenceThreshold = 3.
+           uint32 NumberOfObjects = 1
+         },
+         {
+           InputTag L1CollectionLabel = hltSingleMuPrescale77L1Filtered::HLT 
+           VInputTag HLTCollectionLabels = {
+             hltSingleMuPrescale77L2PreFiltered::HLT,
+             hltSingleMuPrescale77L3PreFiltered::HLT
+           } 
+           double L1ReferenceThreshold = 7.
+           double HLTReferenceThreshold = 5.
+           uint32 NumberOfObjects = 1
+         },
+         {
+           InputTag L1CollectionLabel = hltSingleMuPrescale1710L1Filtered::HLT 
+           VInputTag HLTCollectionLabels = {
+             hltSingleMuPrescale710L2PreFiltered::HLT,
+             hltSingleMuPrescale710L3PreFiltered::HLT
+           } 
+           double L1ReferenceThreshold = 7.
+           double HLTReferenceThreshold = 7.
+           uint32 NumberOfObjects = 1
+         },
+         {
+           InputTag L1CollectionLabel = hltMuLevel1PathL1Filtered::HLT 
+           VInputTag HLTCollectionLabels = {}          
+           double L1ReferenceThreshold = 3.
+           double HLTReferenceThreshold = 3.
+           uint32 NumberOfObjects = 1
+         }
+      }
+
+      # Shift to go to 90% efficiency pt values (in number of sigmas for 1/pt) 
+      # ORCA values: 3.9 sigmas for L2; 2.2 sigmas for L3
+      untracked vdouble NSigmas90 = { 3., 3., 3., 3. }
+
+      # CrossSection (in nb) = generator cross section * filter efficiency
+      # double CrossSection = 79300000
+      double CrossSection = .97
+
+      # Luminosity (in 1/cm**2/s units)
+      untracked double Luminosity = 1.e32
+
+      # Parameters defining histogram limits and number of bins
+      untracked double PtMin = 0.0
+      untracked double PtMax = 40.0
+      untracked uint32 Nbins = 40
+
+ }
