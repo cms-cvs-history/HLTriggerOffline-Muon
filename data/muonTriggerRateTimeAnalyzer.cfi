@@ -1,28 +1,30 @@
 module muonTriggerRateTimeAnalyzer = MuonTriggerRateTimeAnalyzer 
 {
-      untracked bool DQMStore = true
-      untracked string RootFileName = ""
-      bool UseMuonFromGenerator = true
-      untracked InputTag GenLabel = source
-      bool UseMuonFromReco = true
-      untracked InputTag RecoLabel = globalMuons
-      double MaxTime = 150.
-      uint32 TimeNbins = 150
-      InputTag TimerLabel = hltTimer
-      InputTag TriggerResultLabel = TriggerResults::HLT
+      untracked bool     DQMStore     = true
+      untracked string   RootFileName = ""
+
+      untracked string GenLabel       = "genParticles"
+      untracked string RecoLabel      = "globalMuons"
+      bool      UseMuonFromGenerator  = true
+      bool      UseMuonFromReco       = true
+
+      double    MaxTime               = 150.
+      uint32    TimeNbins             = 150
+      InputTag  TimerLabel            = hltTimer
+      InputTag  TriggerResultLabel    = TriggerResults::HLT
 
       untracked PSet TimingModules =
       {
-          untracked vstring MuonDigiModules = {"muonCSCDigis","muonDTDigis","muonRPCDigis"}
-          untracked vstring CaloDigiModules = {"ecalDigis","ecalPreshowerDigis","hcalDigis"}
-          untracked vstring TrackerDigiModules = {"siPixelDigis","siStripDigis"}
+          untracked vstring MuonDigiModules     = {"muonCSCDigis","muonDTDigis","muonRPCDigis"}
+          untracked vstring CaloDigiModules     = {"ecalDigis","ecalPreshowerDigis","hcalDigis"}
+          untracked vstring TrackerDigiModules  = {"siPixelDigis","siStripDigis"}
           untracked vstring MuonLocalRecModules = {"dt1DRecHits","dt4DSegments","rpcRecHits","csc2DRecHits","cscSegments"}
-          untracked vstring MuonL2RecModules = {"hltL2MuonSeeds","hltL2Muons","hltL2MuonCandidates","SingleMuIsoL2PreFiltered"}
-          untracked vstring CaloRecModules = {"ecalRegionalMuonsWeightUncalibRecHit","ecalRegionalMuonsRecHit","ecalPreshowerRecHit","hbhereco","horeco","hfreco","towerMakerForMuons","caloTowersForMuons"}
-          untracked vstring MuonL2IsoModules = {"hltL2MuonIsolations","SingleMuIsoL2IsoFiltered"}
-          untracked vstring TrackerRecModules = {"siPixelClusters","siPixelRecHits","siStripClusters","siStripMatchedRecHits"}
-          untracked vstring MuonL3RecModules = {"hltL3Muons","hltL3MuonCandidates","SingleMuIsoL3PreFiltered"}
-          untracked vstring MuonL3IsoModules = {"pixelTracks","hltL3MuonIsolations","SingleMuIsoL3IsoFiltered"}  
+          untracked vstring MuonL2RecModules    = {"hltL2MuonSeeds","hltL2Muons","hltL2MuonCandidates","SingleMuIsoL2PreFiltered"}
+          untracked vstring CaloRecModules      = {"ecalRegionalMuonsWeightUncalibRecHit","ecalRegionalMuonsRecHit","ecalPreshowerRecHit","hbhereco","horeco","hfreco","towerMakerForMuons","caloTowersForMuons"}
+          untracked vstring MuonL2IsoModules    = {"hltL2MuonIsolations","SingleMuIsoL2IsoFiltered"}
+          untracked vstring TrackerRecModules   = {"siPixelClusters","siPixelRecHits","siStripClusters","siStripMatchedRecHits"}
+          untracked vstring MuonL3RecModules    = {"hltL3Muons","hltL3MuonCandidates","SingleMuIsoL3PreFiltered"}
+          untracked vstring MuonL3IsoModules    = {"pixelTracks","hltL3MuonIsolations","SingleMuIsoL3IsoFiltered"}  
       }
 
       VPSet TriggerCollection = 
@@ -137,16 +139,15 @@ module muonTriggerRateTimeAnalyzer = MuonTriggerRateTimeAnalyzer
       # ORCA values: 3.9 sigmas for L2; 2.2 sigmas for L3
       untracked vdouble NSigmas90 = { 3., 3., 3., 3. }
 
-      # CrossSection (in nb) = generator cross section * filter efficiency
-      # double CrossSection = 79300000
       double CrossSection = .97
 
-      # Luminosity (in 1/cm**2/s units)
-      untracked double Luminosity = 1.e32
-
       # Parameters defining histogram limits and number of bins
-      untracked double PtMin = 0.0
+      untracked double PtMin =  0.0
       untracked double PtMax = 40.0
       untracked uint32 Nbins = 40
 
+      # Cuts on generated muons to be included as a baseline
+      untracked double MinPtCut         = 5.0
+      untracked double MaxEtaCut        = 2.1
+      untracked uint32 MotherParticleId = 0
  }
