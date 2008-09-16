@@ -6,7 +6,7 @@ process.load("HLTriggerOffline.Muon.muonTriggerRateTimeAnalyzer_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source("PoolSource",
