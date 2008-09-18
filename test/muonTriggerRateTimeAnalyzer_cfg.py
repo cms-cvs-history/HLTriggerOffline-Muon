@@ -4,6 +4,8 @@ process = cms.Process("HLTMuonOfflineAnalysis")
 
 process.load("HLTriggerOffline.Muon.muonTriggerRateTimeAnalyzer_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
+# muonTriggerRateTimeAnalyzer.MinPt = cms.untracked.double(5.)
+# muonTriggerRateTimeAnalyzer.MotherParticle = cms.untracked.uint32(24)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
