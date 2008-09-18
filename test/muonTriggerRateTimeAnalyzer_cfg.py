@@ -4,7 +4,10 @@ process = cms.Process("HLTMuonOfflineAnalysis")
 
 process.load("HLTriggerOffline.Muon.muonTriggerRateTimeAnalyzer_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
-# process.muonTriggerRateTimeAnalyzer.MinPtCut = cms.untracked.double(5.)
+
+##### Templates to change parameters in muonTriggerRateTimeAnalyzer
+# process.muonTriggerRateTimeAnalyzer.NtupleFileName = cms.untracked.string("ntuple.root")
+# process.muonTriggerRateTimeAnalyzer.MinPtCut = cms.untracked.double(10.)
 # process.muonTriggerRateTimeAnalyzer.MotherParticleId = cms.untracked.uint32(24)
 
 process.maxEvents = cms.untracked.PSet(
