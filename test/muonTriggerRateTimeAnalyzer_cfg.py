@@ -26,13 +26,6 @@ process.source.fileNames = fileList.fileNames
 
 process.DQMStore = cms.Service("DQMStore")
 
-process.filter = cms.EDFilter("MCSingleParticleFilter",
-    MaxEta     = cms.untracked.vdouble(  2.1,  2.1 ),
-    MinEta     = cms.untracked.vdouble( -2.1, -2.1 ),
-    MinPt      = cms.untracked.vdouble(  5.0,  5.0 ),
-    ParticleID = cms.untracked.vint32 (  -13,   13 )
-)
-
 process.MessageLogger = cms.Service("MessageLogger",
     HLTMuonVallog  = cms.untracked.PSet(
         threshold  = cms.untracked.string('INFO'),
@@ -59,7 +52,6 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.analyzerpath = cms.Path(
-    process.filter*
     process.muonTriggerRateTimeAnalyzer*
     process.MEtoEDMConverter
 )
