@@ -47,7 +47,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *', 
-        'keep *_MEtoEDMConverter_*_*'),
+        'keep *_MEtoEDMConverter_*_HLTMuonOfflineAnalysis'),
     fileName = cms.untracked.string('RateTimeAnalyzer.root')
 )
 
