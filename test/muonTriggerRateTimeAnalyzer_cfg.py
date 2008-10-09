@@ -9,6 +9,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 # process.muonTriggerRateTimeAnalyzer.NtupleFileName = cms.untracked.string("ntuple.root")
 # process.muonTriggerRateTimeAnalyzer.MinPtCut = cms.untracked.double(10.)
 # process.muonTriggerRateTimeAnalyzer.MotherParticleId = cms.untracked.uint32(24)
+# process.muonTriggerRateTimeAnalyzer.HltProcessName = cms.string("HLT2")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
