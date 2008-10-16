@@ -20,11 +20,6 @@ process.source = cms.Source("PoolSource",
     fileNames  = cms.untracked.vstring()
 )
 
-# By default, a fileList_cff is required; appropriate examples can be found
-# in /afs/cern.ch/user/k/klukas/webHLT/fileLists/ and copied to ../python
-import HLTriggerOffline.Muon.fileList_cff as fileList
-process.source.fileNames = fileList.fileNames
-
 process.DQMStore = cms.Service("DQMStore")
 
 process.MessageLogger = cms.Service("MessageLogger",
