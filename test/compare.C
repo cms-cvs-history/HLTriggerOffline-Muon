@@ -20,10 +20,8 @@ TString cutPtEta  = Form(" (p_{T} > %.0f GeV, |#eta| < %.1f)",
 void compare( TString n1 = "", TString n2 = "", TString n3 = "", 
 	      TString n4 = "", TString n5 = "", TString n6 = "", 
 	      TString n7 = "", TString n8 = "", 
-	      bool statsOnly = false )
+	      bool statsOnly = false, TString hltPath = "HLT_IsoMu9" )
 {
-
-  TString hltPath = "hltSingleMuIso";
 
   vector<TString> names;
   if ( n1 != "" ) names.push_back(n1);
@@ -52,6 +50,16 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
     dirs[i] = gDirectory;
   }
   
+  vector<TString> pathNames;
+  dirs[0]->cd(pathDistributions);
+  TList *list  = gDirectory->GetListOfKeys();
+  TObject *obj = list->First();
+  while ( obj ) {
+    TString name = obj->GetName();
+    pathNames.push_back(name);
+    obj = list->After(obj);
+  } 
+
   gStyle->SetOptStat(  0);
   gStyle->SetOptFit (  0);
   gStyle->SetErrorX (0.5);
@@ -63,83 +71,139 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   int counter = 0;		   
   vector<TString> histNames;
   vector<TString> histNamesStats;
-  
-  histNames.clear();
-  histNames.push_back("genTurnOn_L1Filtered"); 
-  histNames.push_back("genTurnOn_L2PreFiltered"); 
-  histNames.push_back("genTurnOn_L2IsoFiltered"); 
-  histNames.push_back("genTurnOn_L3PreFiltered"); 
-  histNames.push_back("genTurnOn_L3IsoFiltered"); 
-  histNames.push_back("genEffEta_L1Filtered"); 
-  histNames.push_back("genEffEta_L2PreFiltered"); 
-  histNames.push_back("genEffEta_L2IsoFiltered"); 
-  histNames.push_back("genEffEta_L3PreFiltered"); 
-  histNames.push_back("genEffEta_L3IsoFiltered"); 
-  histNames.push_back("genEffPhi_L1Filtered"); 
-  histNames.push_back("genEffPhi_L2PreFiltered"); 
-  histNames.push_back("genEffPhi_L2IsoFiltered"); 
-  histNames.push_back("genEffPhi_L3PreFiltered"); 
-  histNames.push_back("genEffPhi_L3IsoFiltered"); 
+  vector<TString> filterNames;
+  filterNames.push_back("");
+
+  dirs[0]->cd(pathDistributions + hltPath);
+  TList *list  = gDirectory->GetListOfKeys();
+  TObject *obj = list->First();
+  while ( obj ) {
+    TString name = obj->GetName();
+    TString filterName = name(name.Index("_L")+1,name.Length());
+    if ( name.Contains("genPassPhi") ) {
+      if ( name.Contains("L1Filtered") )
+	filterNames[0] = filterName;
+      else if ( name.Contains("Filtered") )
+	filterNames.push_back(filterName);
+    }
+    obj = list->After(obj);
+  }
+
+  for ( int i = 0; i < filterNames.size(); i++ ) histNames.push_back("genTurnOn_"+filterNames[i]);
+  for ( int i = 0; i < filterNames.size(); i++ ) histNames.push_back("genEffEta_"+filterNames[i]);
+  for ( int i = 0; i < filterNames.size(); i++ ) histNames.push_back("genEffPhi_"+filterNames[i]);
+
+  for ( int i = 0; i < histNames.size(); i++ ) cout << histNames[i] << endl;
 
   histNamesStats.push_back("genPassPhi_All"); 
-  histNamesStats.push_back("genPassPhi_L1Filtered"); 
-  histNamesStats.push_back("genPassPhi_L2PreFiltered"); 
-  histNamesStats.push_back("genPassPhi_L2IsoFiltered"); 
-  histNamesStats.push_back("genPassPhi_L3PreFiltered"); 
-  histNamesStats.push_back("genPassPhi_L3IsoFiltered"); 
+  for ( int i = 0; i < filterNames.size(); i++ ) histNamesStats.push_back("genPassPhi_"+filterNames[i]); 
   
-  vector< vector<double> > histEntries(numFiles);
-  vector< vector<double> > efficiencies(numFiles);
+  for ( int i = 0; i < histNamesStats.size(); i++ ) cout << histNamesStats[i] << endl;
+
+  vector<double>  histEntries[numFiles];
+  vector<double>  efficiencies[numFiles];
   vector<TString> outHtml(numFiles);
   vector<TString> outTwiki(numFiles);
   int stepNumber;
+  
+  //// Generate statistics table and make a variety of histograms for histPath
 
   for ( int genRecIndex = 0; genRecIndex < 2; genRecIndex++ ) {
-    for ( int j = 0; j < numFiles; j++ ) {
-      histEntries [j].clear();
-      efficiencies[j].clear();
+    for ( int iFile = 0; iFile < numFiles; iFile++ ) {
+      histEntries [iFile].clear();
+      efficiencies[iFile].clear();
       for ( int i = 0; i < histNamesStats.size(); i++ ) {
 	if ( genRecIndex == 1 ) histNamesStats[i].ReplaceAll("gen","rec");
 	TString histPath = pathDistributions + hltPath +"/"+ histNamesStats[i];
-	TH1F* hist = (TH1F*)dirs[j]->Get(histPath);
-	if ( hist ) histEntries[j].push_back(hist->GetEntries());
+	TH1F* hist = (TH1F*)dirs[iFile]->Get(histPath);
+	if ( hist ) histEntries[iFile].push_back(hist->GetEntries());
       }
-      if ( histEntries[j].size() > 1 )  
-	efficiencies[j].push_back( 100 * histEntries[j][1]/histEntries[j][0] );
-      if ( histEntries[j].size() > 2 ) 
-	for ( int i = 2; i < histEntries[j].size(); i++ ) 
-	  efficiencies[j].push_back(100 * histEntries[j][i]/histEntries[j][1]);
-      outHtml[j]  = "Gen: <tr><th>" + titles[j];
-      outTwiki[j] = "Gen: | " + titles[j];
-      for ( int i = 0; i < efficiencies[j].size(); i++ ) {
-	outHtml[j]  += Form("<td>%.1f",efficiencies[j][i]);
-	outTwiki[j] += Form(" | %.1f ",efficiencies[j][i]);
+      if ( histEntries[iFile].size() > 1 )  
+	efficiencies[iFile].push_back( 100 * histEntries[iFile][1]/histEntries[iFile][0] );
+      if ( histEntries[iFile].size() > 2 ) 
+	for ( int i = 2; i < histEntries[iFile].size(); i++ ) 
+	  efficiencies[iFile].push_back(100 * histEntries[iFile][i]/histEntries[iFile][1]);
+      cout << hltPath << endl;
+      outHtml[iFile]  = "Gen: <tr><th>" + titles[iFile];
+      outTwiki[iFile] = "Gen: | " + titles[iFile];
+      for ( int i = 0; i < efficiencies[iFile].size(); i++ ) {
+	outHtml[iFile]  += Form("<td>%.1f",efficiencies[iFile][i]);
+	outTwiki[iFile] += Form(" | %.1f ",efficiencies[iFile][i]);
       }
-      if ( genRecIndex == 1 ) outHtml [j].ReplaceAll("Gen","Rec");
-      if ( genRecIndex == 1 ) outTwiki[j].ReplaceAll("Gen","Rec");
-      cout << outHtml[j] << endl << outTwiki[j] << endl;
-    }
+      if ( genRecIndex == 1 ) outHtml [iFile].ReplaceAll("Gen","Rec");
+      if ( genRecIndex == 1 ) outTwiki[iFile].ReplaceAll("Gen","Rec");
+      cout << outHtml[iFile] << endl << outTwiki[iFile] << endl;
+    } // end iFile loop
     if ( statsOnly ) break;
     for ( int i = 0; i < histNames.size(); i++ ) {
       TList *hists = new TList();
       if ( genRecIndex == 1 ) histNames[i].ReplaceAll("gen","rec");
       TString histPath = pathDistributions + hltPath + "/" + histNames[i];
-      for ( int j = 0; j < numFiles; j++ ) {
-	TH1F* hist = (TH1F*)dirs[j]->Get(histPath); 
-	hist->SetTitle(titles[j]);
-	hists->Add(hist);
+      for ( int iFile = 0; iFile < numFiles; iFile++ ) {
+	TH1F* hist = (TH1F*)dirs[iFile]->Get(histPath); 
+	TH1F* histClone = (TH1F*)hist->Clone();
+	histClone->SetTitle(titles[iFile]);
+	hists->Add(histClone);
       }
       if ( hists->At(0) ) {
 	vector<double> theseEfficiencies(numFiles);
 	int stepNumber = i%efficiencies[0].size();
-	for ( int j = 0; j < numFiles; j++ ) {
-	  theseEfficiencies[j] = efficiencies[j][stepNumber];
+	for ( int iFile = 0; iFile < numFiles; iFile++ ) {
+	  theseEfficiencies[iFile] = efficiencies[iFile][stepNumber];
 	}
 	plot( hists, histNames[i], theseEfficiencies, ++counter );
       }
-    }
+    }   
   }
 
+  //// Generate turn-on curves for all paths
+
+  for ( int iPath = 0; iPath < pathNames.size(); iPath++ ) {
+    filterNames.clear();
+    filterNames.push_back("");
+    dirs[0]->cd(pathDistributions + pathNames[iPath]);
+    list = gDirectory->GetListOfKeys();
+    obj  = list->First();
+    while ( obj ) {
+      TString name = obj->GetName();
+      TString filterName = name(name.Index("_L")+1,name.Length());
+      if ( name.Contains("genPassPhi") ) {
+	if ( name.Contains("L1Filtered") )
+	  filterNames[0] = filterName;
+	else if ( name.Contains("Filtered") )
+	  filterNames.push_back(filterName);
+      }
+      obj = list->After(obj);
+    }
+
+    if ( filterNames.size() == 5 ) {
+      TString temp;
+      temp = filterNames[1];
+      filterNames[1] = filterNames[2];
+      filterNames[2] = temp;
+      temp = filterNames[3];
+      filterNames[3] = filterNames[4];
+      filterNames[4] = temp;
+    }
+
+    for ( int i = 0; i < filterNames.size(); i++ ) {
+      TList *hists = new TList();
+      for ( int iFile = 0; iFile < numFiles; iFile++ ) {
+	TString histPath = pathDistributions + pathNames[iPath] + "/genTurnOn_" + filterNames[i];
+	TH1F* hist = (TH1F*)dirs[iFile]->Get(histPath); 
+	if ( hist ) {
+	  TH1F* histClone = (TH1F*)hist->Clone();
+	  histClone->SetTitle(titles[iFile]);
+	  hists->Add(histClone);
+	}
+      }
+      if ( hists->At(0) ) {
+	vector<double> theseEfficiencies(numFiles,0.);
+	plot( hists, "genTurnOn_"+filterNames[i]+" "+pathNames[iPath], theseEfficiencies, ++counter );
+      }
+    }       
+  }
+  
   if ( fileType == ".pdf" && !statsOnly ) {
     gSystem->Exec("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf [0-9]*.pdf");
     if ( numFiles == 1  ) 
@@ -150,7 +214,6 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
       gSystem->Exec("cp merged.pdf "+titles[0]+"_vs_Many.pdf");
     gSystem->Exec("rm [0-9]*.pdf");
   }
-
 }
 
 
@@ -162,6 +225,8 @@ void plot( TList *hists, TString histName, vector<double> &effs, int counter ) {
   TH1F* hist; 
   TString label = histName("L[1-3].*");
 
+  const int colors[] = { kBlue,     kRed,    kGreen+2, kMagenta+2, 
+			 kYellow+2, kCyan+2, kBlue+3,  kRed+3     };
   int colorCount = 0;
   hist = firstHist;
   while ( hist ) {
