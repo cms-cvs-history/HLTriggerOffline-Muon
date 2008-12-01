@@ -27,3 +27,6 @@ FILES=`echo $FILES | sed 's/,,,,//'`
 cat PostProcessor_cfg.py | sed "s;vstring('file:RateTimeAnalyzer.root');vstring($FILES);" > post.py
 
 cmsRun post.py
+
+jobName=`echo $1 | sed "s/\/RelVal\(.*\)\/.*_\(._._._.*\)\/.*/\1_\2/"`
+mv PostProcessor.root $jobName.root
