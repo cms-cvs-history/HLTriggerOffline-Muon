@@ -1,4 +1,3 @@
-
 #include<vector>
 #include<map>
 
@@ -15,6 +14,8 @@ TString pathDistributions = "/DQMData/HLT/Muon/Distributions/";
 
 TString cutEta;
 TString cutPtEta;
+map<string,float> efficValues[8];
+map<string,float> efficErrors[8];
 
 ///////////////////////////////////////
 
@@ -45,56 +46,44 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   vector<TString> titles;
   for ( int i = 0; i < names.size(); i++ ) {
     TString fullName  = names[i];
-    TString shortName = fullName( 0, fullName.Index(".root") );
-    titles.push_back( shortName );
+    titles.push_back( fullName( 0, fullName.Index(".root") ) );
   }
 
   const int numFiles = names.size();
   TFile *files[numFiles];
-  for ( int i = 0; i < numFiles; i++ ) {
+  for ( int i = 0; i < numFiles; i++ ) 
     files[i] = TFile::Open(names[i],"READ"); 
-    files[i]->cd();
-  }
   
   vector<TString> pathNames;
   files[0]->cd(pathDistributions);
-  //files[0]->cd(pathDistributions + hltPath);
   TList *list  = gDirectory->GetListOfKeys();
   TObject *obj = list->First();
   while ( obj ) {
     TString name = obj->GetName();
-    //cout << name << endl;
     pathNames.push_back(name);
     obj = list->After(obj);
   } 
 
-  //// Create map of values of float MonitorElements
-  
-  map<string,float> meValues;
-  TPRegexp regexp("^<(.*)>(i|f|s|qr)=(.*)</\\1>$");
-  files[0]->cd(pathDistributions + hltPath);
-  TList *list = gDirectory->GetListOfKeys();
-  TObject *obj = list->First();
-  while ( obj ) {
-    if ( regexp.Match(obj->GetName()) ) {
-      TObjArray* array = regexp.MatchS(obj->GetName());
-      string meName  = (array->At(1))->GetName();
-      float  meValue = atof( (array->At(3))->GetName() );
-      meValues[meName] = meValue;
+  /// Create map of efficiency values and errors
+
+  for ( int iFile = 0; iFile < numFiles; iFile++ ) {
+    TH1F* globHist = (TH1F*)files[iFile]->Get(pathDistributions + hltPath + 
+					      "/globalEfficiencies");
+    globHist->LabelsDeflate();
+    for ( int iBin = 0; iBin < globHist->GetNbinsX(); iBin++ ) {
+      string label = globHist->GetXaxis()->GetBinLabel(iBin+1);
+      efficValues[iFile][label] = 100. * globHist->GetBinContent(iBin+1);
+      efficErrors[iFile][label] = 100. * globHist->GetBinError(iBin+1);
     }
-    obj = list->After(obj);
   }
-  TString cutEta    = Form(" (|#eta| < %.1f)", meValues["MaxEtaCut"]);
-  TString cutPtEta  = Form(" (p_{T} > %.0f, |#eta| < %.1f)", 
-			   meValues["MinPtCut"], meValues["MaxEtaCut"]);
   
   c1 = new TCanvas("c1","c1",800,600);
   c1->GetFrame()->SetBorderSize(6);
   c1->GetFrame()->SetBorderMode(-1);
-
+  
   //// Get names of histograms to look for
 
-  int counter = 0;		   
+  int counter = 0;
   vector<TString> histNames;
   vector<TString> histNamesStats;
   vector<TString> filterNames;
@@ -116,47 +105,32 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   }
   if ( filterNames.size() == 5 ) filterNames = sortFilterNames(filterNames);
 
-  if ( isSingleMuSample ) for ( int i = 0; i < filterNames.size(); i++ ) histNames.push_back("genPassPt_"+filterNames[i]);
-  else for ( int i = 0; i < filterNames.size(); i++ ) histNames.push_back("genTurnOn_"+filterNames[i]);
-  for ( int i = 0; i < filterNames.size(); i++ ) histNames.push_back("genEffEta_"+filterNames[i]);
-  for ( int i = 0; i < filterNames.size(); i++ ) histNames.push_back("genEffPhi_"+filterNames[i]);
+  if ( isSingleMuSample ) for ( int i = 0; i < filterNames.size(); i++ ) 
+    histNames.push_back("genPassPt_"+filterNames[i]);
+  else for ( int i = 0; i < filterNames.size(); i++ ) 
+    histNames.push_back("genTurnOn_"+filterNames[i]);
+  for ( int i = 0; i < filterNames.size(); i++ ) 
+    histNames.push_back("genEffEta_"+filterNames[i]);
+  for ( int i = 0; i < filterNames.size(); i++ ) 
+    histNames.push_back("genEffPhi_"+filterNames[i]);
 
-  for ( int i = 0; i < histNames.size(); i++ ) cout << histNames[i] << endl;
-
-  histNamesStats.push_back("genPassPhi_All"); 
-  for ( int i = 0; i < filterNames.size(); i++ ) histNamesStats.push_back("genPassPhi_"+filterNames[i]); 
-  
-  for ( int i = 0; i < histNamesStats.size(); i++ ) cout << histNamesStats[i] << endl;
-
-  vector<double>  histEntries[numFiles];
-  vector<double>  efficiencies[numFiles];
   vector<TString> outHtml(numFiles);
   vector<TString> outTwiki(numFiles);
   int stepNumber;
   
   //// Generate statistics table and make various histograms for histPath
-
-  for ( int genRecIndex = 0; genRecIndex < 1; genRecIndex++ ) {
+  
+  for ( int genRecIndex = 0; genRecIndex < 2; genRecIndex++ ) {
     for ( int iFile = 0; iFile < numFiles; iFile++ ) {
-      histEntries [iFile].clear();
-      efficiencies[iFile].clear();
-      for ( int i = 0; i < histNamesStats.size(); i++ ) {
-	if ( genRecIndex == 1 ) histNamesStats[i].ReplaceAll("gen","rec");
-	TString histPath = pathDistributions + hltPath +"/"+ histNamesStats[i];
-	TH1F* hist = (TH1F*)files[iFile]->Get(histPath);
-	if ( hist ) histEntries[iFile].push_back(hist->GetEntries());
-      }
-      if ( histEntries[iFile].size() > 1 )  
-	efficiencies[iFile].push_back( 100 * histEntries[iFile][1]/histEntries[iFile][0] );
-      if ( histEntries[iFile].size() > 2 ) 
-	for ( int i = 2; i < histEntries[iFile].size(); i++ ) 
-	  efficiencies[iFile].push_back(100 * histEntries[iFile][i]/histEntries[iFile][1]);
       cout << hltPath << endl;
       outHtml[iFile]  = "Gen: <tr><th>" + titles[iFile];
       outTwiki[iFile] = "Gen: | " + titles[iFile];
-      for ( int i = 0; i < efficiencies[iFile].size(); i++ ) {
-	outHtml[iFile]  += Form("<td>%.1f",efficiencies[iFile][i]);
-	outTwiki[iFile] += Form(" | %.1f ",efficiencies[iFile][i]);
+      for ( int i = 0; i < filterNames.size(); i++ ) {
+	string label = ( genRecIndex == 0 ) ? "genEffPhi_" : "recEffPhi_";
+	label += filterNames[i];
+	// cout << label << endl;
+	outHtml[iFile]  += Form("<td>%.1f",efficValues[iFile][label]);
+	outTwiki[iFile] += Form(" | %.1f ",efficValues[iFile][label]);
       }
       if ( genRecIndex == 1 ) outHtml [iFile].ReplaceAll("Gen","Rec");
       if ( genRecIndex == 1 ) outTwiki[iFile].ReplaceAll("Gen","Rec");
@@ -173,15 +147,9 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
 	histClone->SetTitle(titles[iFile]);
 	hists->Add(histClone);
       }
-      if ( hists->At(0) ) {
-	vector<double> theseEfficiencies(numFiles);
-	int stepNumber = i%efficiencies[0].size();
-	for ( int iFile = 0; iFile < numFiles; iFile++ ) {
-	  theseEfficiencies[iFile] = efficiencies[iFile][stepNumber];
-	}
-	plot( hists, histNames[i], theseEfficiencies, ++counter );
-      }
-    }   
+      if ( hists->At(0) ) 
+	plot( hists, histNames[i], ++counter );
+   }   
   }
 
   //// Generate turn-on curves for all paths
@@ -218,10 +186,8 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
 	  hists->Add(histClone);
 	}
       }
-      if ( hists->At(0) ) {
-	vector<double> theseEfficiencies(numFiles,0.);
-	plot( hists, "genTurnOn_"+filterNames[i]+" "+pathNames[iPath], theseEfficiencies, ++counter );
-      }
+      if ( hists->At(0) ) plot( hists, "genTurnOn_" + filterNames[i] +
+				" " + pathNames[iPath], ++counter );
     }       
   }
   
@@ -253,7 +219,7 @@ vector<TString> sortFilterNames( vector<TString> filterNames )
 
 
 
-void plot( TList *hists, TString histName, vector<double> &effs, int counter ) 
+void plot( TList *hists, TString histName, int counter ) 
 {
 
   TH1F *firstHist = hists->First();
@@ -289,14 +255,16 @@ void plot( TList *hists, TString histName, vector<double> &effs, int counter )
     if ( histType == "TurnOn" ) {
       turnOn->SetParameters(1,20,100);
       turnOn->SetLineColor( hist->GetLineColor() );
-      hist->Fit("turnOn");
+      hist->Fit("turnOn","q");
       effic = turnOn->GetParameter(2);
       efficLabel = "(Plateau Value)";
       hist->Draw();
     }
-    if ( histType == "Efficiency" ) effic = effs[hists->IndexOf(hist)];
+    if ( histType == "Efficiency" ) 
+      effic = efficValues[hists->IndexOf(hist)][histName.Data()];
     TString title = hist->GetTitle();
-    if ( effic < 100. && effic > 0. ) hist->SetTitle( title + Form(" (%.1f%)",effic) );
+    if ( effic < 100. && effic > 0. ) 
+      hist->SetTitle( title + Form(" (%.1f%)",effic) );
     hist = (TH1F*)hists->Before(hist);
   }
 
