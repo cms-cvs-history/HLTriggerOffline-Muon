@@ -128,10 +128,14 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
       for ( int i = 0; i < filterNames.size(); i++ ) {
 	string label = ( genRecIndex == 0 ) ? "genEffPhi_" : "recEffPhi_";
 	label += filterNames[i];
-	// cout << label << endl;
-	outHtml[iFile]  += Form("<td>%.1f",efficValues[iFile][label]);
-	outTwiki[iFile] += Form(" | %.1f ",efficValues[iFile][label]);
+	outHtml[iFile]  += Form("<td>%.1f &plusmn; %.1f",
+				efficValues[iFile][label],
+ 				efficErrors[iFile][label]);
+	outTwiki[iFile] += Form(" | %.1f &plusmn; %.1f",
+				efficValues[iFile][label],
+				efficErrors[iFile][label]);
       }
+      outTwiki[iFile] += " |";
       if ( genRecIndex == 1 ) outHtml [iFile].ReplaceAll("Gen","Rec");
       if ( genRecIndex == 1 ) outTwiki[iFile].ReplaceAll("Gen","Rec");
       cout << outHtml[iFile] << endl << outTwiki[iFile] << endl;
@@ -244,27 +248,29 @@ void plot( TList *hists, TString histName, int counter )
   TF1 *turnOn = new TF1("turnOn","(0.5*TMath::Erf((x/[0]+1.)/(TMath::Sqrt(2.)*[1])) + 0.5*TMath::Erf((x/[0]-1.)/(TMath::Sqrt(2.)*[1])) )*([2])",10,40);
 
   hist = lastHist;
-  TString efficLabel = "(Overall Efficiciency)";
+  TString efficLabel = "(Overall Efficiency)";
   while ( hist ) {
     hist->Draw();
-    double effic = -1;
-    if ( histType == "Efficiency" || histType == "TurnOn" ) {
+    TString title = hist->GetTitle();
+    if ( histType == "Efficiency" ) {
       hist->Scale(100.);
       hist->GetYaxis()->SetRangeUser(0.,100.);
+      double effic = efficValues[hists->IndexOf(hist)][histName.Data()];
+      double error = efficErrors[hists->IndexOf(hist)][histName.Data()];
+      hist->SetTitle( title + Form(" (%.1f#pm%.1f%%)", effic, error ) );
     }
     if ( histType == "TurnOn" ) {
+      hist->Scale(100.);
+      hist->GetYaxis()->SetRangeUser(0.,100.);
       turnOn->SetParameters(1,20,100);
       turnOn->SetLineColor( hist->GetLineColor() );
       hist->Fit("turnOn","q");
-      effic = turnOn->GetParameter(2);
       efficLabel = "(Plateau Value)";
       hist->Draw();
+      double effic = turnOn->GetParameter(2);
+      if ( effic < 100. && effic > 0. ) 
+	hist->SetTitle( title + Form(" (%.1f%%)", effic ) );
     }
-    if ( histType == "Efficiency" ) 
-      effic = efficValues[hists->IndexOf(hist)][histName.Data()];
-    TString title = hist->GetTitle();
-    if ( effic < 100. && effic > 0. ) 
-      hist->SetTitle( title + Form(" (%.1f%)",effic) );
     hist = (TH1F*)hists->Before(hist);
   }
 

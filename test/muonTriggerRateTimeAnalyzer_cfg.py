@@ -12,7 +12,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 # process.muonTriggerRateTimeAnalyzer.HltProcessName = cms.string("HLT2")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source("PoolSource",
