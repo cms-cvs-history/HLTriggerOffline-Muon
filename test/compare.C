@@ -1,3 +1,6 @@
+// This macro is meant to be run using the runCompare.sh script, where the
+// names of files can be given simply as parameters on the command line
+
 #include<vector>
 #include<map>
 
@@ -19,20 +22,40 @@ map<string,float> efficErrors[8];
 
 ///////////////////////////////////////
 
+//// Explanations of input parameters
+
+// n1 through n8 should be filenames
+
+// The stats-only option will skip all histograms, and just print out a table
+// of efficiencies
+
+// Most of the created histograms refer only to the chosen path specified with
+// the hltPath parameter.  At the end, however, turn-on curves are generated
+// for all paths.
+
 void compare( TString n1 = "", TString n2 = "", TString n3 = "", 
 	      TString n4 = "", TString n5 = "", TString n6 = "", 
 	      TString n7 = "", TString n8 = "", 
 	      bool statsOnly = false, TString hltPath = "HLT_IsoMu9" )
 {
 
+  // Set histogram options
   gStyle->SetOptStat(  0);
   gStyle->SetOptFit (  0);
   gStyle->SetErrorX (0.5);
 
+  // Create default canvas
+  c1 = new TCanvas("c1","c1",800,600);
+  c1->GetFrame()->SetBorderSize(6);
+  c1->GetFrame()->SetBorderMode(-1);
+  
+  // Flag to ignore turn-on curves and include pt distributions
+  // for SingleMuPtX samples
   bool isSingleMuSample = ( n1.Contains("SingleMu") ) ? true : false;
 
   //// Parse filenames, titles, etc.
 
+  // Collect filename parameters in a vector
   vector<TString> names;
   if ( n1 != "" ) names.push_back(n1);
   if ( n2 != "" ) names.push_back(n2);
@@ -43,17 +66,20 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   if ( n7 != "" ) names.push_back(n7);
   if ( n8 != "" ) names.push_back(n8);
 
+  // Extract sample titles based on filenames
   vector<TString> titles;
   for ( int i = 0; i < names.size(); i++ ) {
     TString fullName  = names[i];
     titles.push_back( fullName( 0, fullName.Index(".root") ) );
   }
 
+  // Open files
   const int numFiles = names.size();
   TFile *files[numFiles];
   for ( int i = 0; i < numFiles; i++ ) 
     files[i] = TFile::Open(names[i],"READ"); 
   
+  // Get a vector of HLT paths based on folders in the first file
   vector<TString> pathNames;
   files[0]->cd(pathDistributions);
   TList *list  = gDirectory->GetListOfKeys();
@@ -66,6 +92,9 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
 
   /// Create map of efficiency values and errors
 
+  // Parse each bin of the globalEfficiencies histogram to get more easily
+  // accessible maps that associate histogram names to global efficiencies 
+  // and errors
   for ( int iFile = 0; iFile < numFiles; iFile++ ) {
     TH1F* globHist = (TH1F*)files[iFile]->Get(pathDistributions + hltPath + 
 					      "/globalEfficiencies");
@@ -77,10 +106,6 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
     }
   }
   
-  c1 = new TCanvas("c1","c1",800,600);
-  c1->GetFrame()->SetBorderSize(6);
-  c1->GetFrame()->SetBorderMode(-1);
-  
   //// Get names of histograms to look for
 
   int counter = 0;
@@ -89,6 +114,11 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   vector<TString> filterNames;
   filterNames.push_back(""); // Holder for L1Filter name
 
+  // Histogram names differ slightly for different paths
+  // Here, we figure out the pattern and end up with a vector which for an
+  // isolated path looks like: { "L1Filtered", 
+  //                             "L2PreFiltered", "L2IsoFiltered", 
+  //                             "L3PreFiltered", "L3IsoFiltered" }
   files[0]->cd(pathDistributions + hltPath);
   TList *list  = gDirectory->GetListOfKeys();
   TObject *obj = list->First();
@@ -103,8 +133,12 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
     }
     obj = list->After(obj);
   }
+
+  // For isolated paths, we need to reorder "Pre" to come before "Iso"
   if ( filterNames.size() == 5 ) filterNames = sortFilterNames(filterNames);
 
+  // For single muon samples, the pt distribution is interesting, but for
+  // other samples, turn-on curves are interesting
   if ( isSingleMuSample ) for ( int i = 0; i < filterNames.size(); i++ ) 
     histNames.push_back("genPassPt_"+filterNames[i]);
   else for ( int i = 0; i < filterNames.size(); i++ ) 
@@ -114,11 +148,11 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   for ( int i = 0; i < filterNames.size(); i++ ) 
     histNames.push_back("genEffPhi_"+filterNames[i]);
 
+  //// Generate statistics table and make various histograms for histPath
+  
   vector<TString> outHtml(numFiles);
   vector<TString> outTwiki(numFiles);
   int stepNumber;
-  
-  //// Generate statistics table and make various histograms for histPath
   
   for ( int genRecIndex = 0; genRecIndex < 2; genRecIndex++ ) {
     for ( int iFile = 0; iFile < numFiles; iFile++ ) {
@@ -194,7 +228,10 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
 				" " + pathNames[iPath], ++counter );
     }       
   }
-  
+
+  //// Merge pdf histograms together into one file, and name it based on the
+  //// input file names
+
   if ( fileType == ".pdf" && !statsOnly ) {
     gSystem->Exec("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf [0-9]*.pdf");
     if ( numFiles == 1  ) 
@@ -205,10 +242,12 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
       gSystem->Exec("cp merged.pdf "+titles[0]+"_vs_Many.pdf");
     gSystem->Exec("rm [0-9]*.pdf");
   }
-  /**/
+
 }
 
-
+// A method to get the list of HLT steps into the correct order
+// It just switches "Iso" and "Pre" from alphabetical order to
+// the order in which they occur in the trigger
 vector<TString> sortFilterNames( vector<TString> filterNames ) 
 {
   TString temp;
