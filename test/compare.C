@@ -185,9 +185,8 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
 	histClone->SetTitle(titles[iFile]);
 	hists->Add(histClone);
       }
-      if ( hists->At(0) ) 
-	plot( hists, histNames[i], ++counter );
-   }   
+      if ( hists->At(0) ) plot( hists, histNames[i], ++counter );
+    } // end histNames loop
   }
 
   //// Generate turn-on curves for all paths
@@ -199,6 +198,7 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
     files[0]->cd(pathDistributions + pathNames[iPath]);
     list = gDirectory->GetListOfKeys();
     obj  = list->First();
+    // Get the names of each step in this HLT path
     while ( obj ) {
       TString name = obj->GetName();
       TString filterName = name(name.Index("_L")+1,name.Length());
@@ -210,9 +210,9 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
       }
       obj = list->After(obj);
     }
-
+    // For isolated paths, put the steps in logical order
     if ( filterNames.size() == 5 ) filterNames = sortFilterNames(filterNames);
-
+    // Plot turn-on curves for each step
     for ( int i = 0; i < filterNames.size(); i++ ) {
       TList *hists = new TList();
       for ( int iFile = 0; iFile < numFiles; iFile++ ) {
@@ -262,6 +262,7 @@ vector<TString> sortFilterNames( vector<TString> filterNames )
 
 
 
+// Make an efficiency, turn-on curve, or pt spectrum plot
 void plot( TList *hists, TString histName, int counter ) 
 {
 
@@ -284,10 +285,12 @@ void plot( TList *hists, TString histName, int counter )
     hist = (TH1F*)hists->After(hist);
   }
 
+  // Function for fitting the plateau of turn-on curves
   TF1 *turnOn = new TF1("turnOn","(0.5*TMath::Erf((x/[0]+1.)/(TMath::Sqrt(2.)*[1])) + 0.5*TMath::Erf((x/[0]-1.)/(TMath::Sqrt(2.)*[1])) )*([2])",10,40);
 
   hist = lastHist;
   TString efficLabel = "(Overall Efficiency)";
+  // For the histogram from each file, set axes and print global efficiencies
   while ( hist ) {
     hist->Draw();
     TString title = hist->GetTitle();
