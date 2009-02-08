@@ -106,6 +106,26 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
     }
   }
   
+  //// Create map of values of float MonitorElements
+  
+  map<string,float> meValues;
+  TPRegexp regexp("^<(.*)>(i|f|s|qr)=(.*)</\\1>$");
+  files[0]->cd(pathDistributions + hltPath);
+  TList *list = gDirectory->GetListOfKeys();
+  TObject *obj = list->First();
+  while ( obj ) {
+    if ( regexp.Match(obj->GetName()) ) {
+      TObjArray* array = regexp.MatchS(obj->GetName());
+      string meName  = (array->At(1))->GetName();
+      float  meValue = atof( (array->At(3))->GetName() );
+      meValues[meName] = meValue;
+    }
+    obj = list->After(obj);
+  }
+  cutEta   = Form(" (|#eta^{Gen}| < %.1f)", meValues["MaxEtaCut"]);
+  cutPtEta = Form(" (p_{T}^{Gen} > %.0f, |#eta^{Gen}| < %.1f)", 
+		  meValues["MinPtCut"], meValues["MaxEtaCut"]);
+
   //// Get names of histograms to look for
 
   int counter = 0;
@@ -178,14 +198,15 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
     for ( int i = 0; i < histNames.size(); i++ ) {
       TList *hists = new TList();
       if ( genRecIndex == 1 ) histNames[i].ReplaceAll("gen","rec");
-      TString histPath = pathDistributions + hltPath + "/" + histNames[i];
+      TString histPath  = pathDistributions + hltPath + "/" + histNames[i];
+      TString histTitle = files[0]->Get(histPath)->GetTitle(); 
       for ( int iFile = 0; iFile < numFiles; iFile++ ) {
 	TH1F* hist = (TH1F*)files[iFile]->Get(histPath); 
 	TH1F* histClone = (TH1F*)hist->Clone();
 	histClone->SetTitle(titles[iFile]);
 	hists->Add(histClone);
       }
-      if ( hists->At(0) ) plot( hists, histNames[i], ++counter );
+      if ( hists->At(0) ) plot( hists, histNames[i], histTitle, ++counter );
     } // end histNames loop
   }
 
@@ -224,8 +245,10 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
 	  hists->Add(histClone);
 	}
       }
-      if ( hists->At(0) ) plot( hists, "genTurnOn_" + filterNames[i] +
-				" " + pathNames[iPath], ++counter );
+      TString histName  = "genTurnOn_" + filterNames[i] + " " + 
+	                  pathNames[iPath];
+      TString histTitle = files[0]->Get(histPath)->GetTitle();
+      if ( hists->At(0) ) plot( hists, histName, histTitle, ++counter );
     }       
   }
 
@@ -233,7 +256,7 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   //// input file names
 
   if ( fileType == ".pdf" && !statsOnly ) {
-    gSystem->Exec("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf [0-9]*.pdf");
+    gSystem->Exec("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf [0-9][0-9].pdf");
     if ( numFiles == 1  ) 
       gSystem->Exec("cp merged.pdf "+titles[0]+".pdf");
     else if ( numFiles == 2 ) 
@@ -263,13 +286,13 @@ vector<TString> sortFilterNames( vector<TString> filterNames )
 
 
 // Make an efficiency, turn-on curve, or pt spectrum plot
-void plot( TList *hists, TString histName, int counter ) 
+void plot( TList *hists, TString histName, TString histTitle, int counter ) 
 {
 
   TH1F *firstHist = hists->First();
   TH1F *lastHist  = hists->Last();
   TH1F* hist; 
-  TString label = histName("L[1-3].*");
+  TString label = histName("L[1-3].*Filtered");
 
   TString histType = "Efficiency";
   if ( histName.Contains("TurnOn") ) histType = "TurnOn"; 
@@ -297,6 +320,8 @@ void plot( TList *hists, TString histName, int counter )
     if ( histType == "Efficiency" ) {
       hist->Scale(100.);
       hist->GetYaxis()->SetRangeUser(0.,100.);
+      TString yTitle = hist->GetYaxis()->GetTitle();
+      hist->GetYaxis()->SetTitle(yTitle);
       double effic = efficValues[hists->IndexOf(hist)][histName.Data()];
       double error = efficErrors[hists->IndexOf(hist)][histName.Data()];
       hist->SetTitle( title + Form(" (%.1f#pm%.1f%%)", effic, error ) );
@@ -334,7 +359,7 @@ void plot( TList *hists, TString histName, int counter )
     if ( axisTitle.Contains("#phi") ) histType = "#phi Efficiency";	 
   }
   TString number = Form("%.2i",counter);
-  TString newTitle = number+": "+label+" "+histType;
+  TString newTitle = number + ": " + histTitle;
   if ( histType == "TurnOn" ) newTitle += cutEta;
   else                        newTitle += cutPtEta;
   lastHist->SetTitle(newTitle);
