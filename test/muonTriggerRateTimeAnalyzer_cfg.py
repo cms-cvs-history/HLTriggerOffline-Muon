@@ -10,6 +10,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 # process.muonTriggerRateTimeAnalyzer.MinPtCut = cms.untracked.double(10.)
 # process.muonTriggerRateTimeAnalyzer.MotherParticleId = cms.untracked.uint32(24)
 # process.muonTriggerRateTimeAnalyzer.HltProcessName = cms.string("HLT2")
+# process.muonTriggerRateTimeAnalyzer.UseAod = cms.untracked.bool(True)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -32,7 +33,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(100000)
         )
     ),
-    debugModules   = cms.untracked.vstring('RateAnalyzer'),
+    debugModules   = cms.untracked.vstring('*'),
     cout           = cms.untracked.PSet(
             threshold = cms.untracked.string('WARNING')
     ),
