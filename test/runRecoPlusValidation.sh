@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Accepts a DBS path, so use looks like:
-# runRelVal.sh /RelValZMM/CMSSW_2_2_4_STARTUP_V8_v1/GEN-SIM-DIGI-RAW-HLTDEBUG
+# ./runRecoPlusValidation.sh /RelValZMM/CMSSW_2_2_4_STARTUP_V8_v1/GEN-SIM-DIGI-RAW-HLTDEBUG
 
 # This script is intended to run on GEN-SIM-DIGI-RAW-HLTDEBUG files, adding
 # the RECO content, then running validation.
@@ -23,11 +23,8 @@ fi
 fi
 
 FILES=`$DBS_CMD lsf --path=$1 | grep .root | sed "s:\(/store/.*\.root\):'\1',\n:"`
-echo $FILES
 FILES=$FILES,,,
 FILES=`echo $FILES | sed 's/,,,,//'`
-
-echo $FILES
 
 TAG=`echo $1 | sed "s/\/.*\/CMSSW_.*[0-9]_\(.*_V.*\)_v.*\/.*/\1/"`
 cat recoPlusValidation_cfg.py | sed "s:vstring():vstring($FILES):" > ana.py
