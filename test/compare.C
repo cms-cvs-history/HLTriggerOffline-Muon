@@ -213,6 +213,7 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   //// Generate turn-on curves for all paths
 
   for ( int iPath = 0; iPath < pathNames.size(); iPath++ ) {
+    break;
     if ( isSingleMuSample ) break;
     filterNames.clear();
     filterNames.push_back("");
@@ -317,18 +318,24 @@ void plot( TList *hists, TString histName, TString histTitle, int counter )
   while ( hist ) {
     hist->Draw();
     TString title = hist->GetTitle();
-    if ( histType == "Efficiency" ) {
+    if ( histType == "Efficiency" || histType == "TurnOn" ) {
       hist->Scale(100.);
       hist->GetYaxis()->SetRangeUser(0.,100.);
-      TString yTitle = hist->GetYaxis()->GetTitle();
-      hist->GetYaxis()->SetTitle(yTitle);
+      TString yTitle    = hist->GetYaxis()->GetTitle();
+      int slashIndex    = yTitle.Index("/");
+      TString yTitle1   = yTitle( 0, slashIndex - 1 );
+      TString yTitle2   = yTitle( slashIndex +2, 100 );
+      TString yTitleNew = "#frac{" + yTitle1 + "}{" + yTitle2 + "} (%)";
+      hist->GetYaxis()->SetTitle( yTitleNew );
+      hist->GetYaxis()->SetTitleOffset(1.5);
+      hist->GetYaxis()->SetTitleSize(0.04);
+    }
+    if ( histType == "Efficiency" ) {
       double effic = efficValues[hists->IndexOf(hist)][histName.Data()];
       double error = efficErrors[hists->IndexOf(hist)][histName.Data()];
       hist->SetTitle( title + Form(" (%.1f#pm%.1f%%)", effic, error ) );
     }
     if ( histType == "TurnOn" ) {
-      hist->Scale(100.);
-      hist->GetYaxis()->SetRangeUser(0.,100.);
       turnOn->SetParameters(1,20,100);
       turnOn->SetLineColor( hist->GetLineColor() );
       hist->Fit("turnOn","q");
