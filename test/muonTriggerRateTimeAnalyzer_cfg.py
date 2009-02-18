@@ -7,6 +7,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 ##### Templates to change parameters in muonTriggerRateTimeAnalyzer
 # process.muonTriggerRateTimeAnalyzer.NtupleFileName = cms.untracked.string("ntuple.root")
+# process.muonTriggerRateTimeAnalyzer.TriggerNames = cms.vstring("HLT_IsoMu9")
 # process.muonTriggerRateTimeAnalyzer.MinPtCut = cms.untracked.double(10.)
 # process.muonTriggerRateTimeAnalyzer.MotherParticleId = cms.untracked.uint32(24)
 # process.muonTriggerRateTimeAnalyzer.HltProcessName = cms.string("HLT2")
