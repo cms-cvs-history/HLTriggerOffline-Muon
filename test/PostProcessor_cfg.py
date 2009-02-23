@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:RateTimeAnalyzer.root')
 )
 
-process.HLTMuonPostVal.outputFileName = cms.untracked.string('PostProcessor.root')
+process.HLTMuonPostProcessor.outputFileName = cms.untracked.string('PostProcessor.root')
 
-process.path1 = cms.Path(process.EDMtoMEConverter*process.HLTMuonPostVal)
+process.path1 = cms.Path(process.EDMtoMEConverter*process.HLTMuonPostProcessor)
 process.DQMStore.referenceFileName = ''
