@@ -18,8 +18,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    skipEvents = cms.untracked.uint32(0),
-    fileNames  = cms.untracked.vstring()
+    fileNames          = cms.untracked.vstring(),
+    secondaryFileNames = cms.untracked.vstring()
 )
 
 process.DQMStore = cms.Service("DQMStore")
