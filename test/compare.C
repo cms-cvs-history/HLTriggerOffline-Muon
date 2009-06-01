@@ -36,8 +36,10 @@ map<string,float> efficErrors[8];
 void compare( TString n1 = "", TString n2 = "", TString n3 = "", 
 	      TString n4 = "", TString n5 = "", TString n6 = "", 
 	      TString n7 = "", TString n8 = "", 
-	      bool statsOnly = false, TString hltPath = "HLT_IsoMu9" )
+	      bool statsOnly = false, TString hltPath = "HLT_IsoMu3" )
 {
+
+  cout << hltPath << endl;
 
   // Set histogram options
   gStyle->SetOptStat(  0);
@@ -49,8 +51,7 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   c1->GetFrame()->SetBorderSize(6);
   c1->GetFrame()->SetBorderMode(-1);
   
-  // Flag to ignore turn-on curves and include pt distributions
-  // for SingleMuPtX samples
+  // Flag to ignore turn-on curves for SingleMuPtX samples
   bool isSingleMuSample = ( n1.Contains("SingleMu") ) ? true : false;
 
   //// Parse filenames, titles, etc.
@@ -72,6 +73,7 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
     TString fullName  = names[i];
     titles.push_back( fullName( 0, fullName.Index(".root") ) );
   }
+
 
   // Open files
   const int numFiles = names.size();
@@ -122,8 +124,8 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
     }
     obj = list->After(obj);
   }
-  cutEta   = Form(" (|#eta^{Gen}| < %.1f)", meValues["MaxEtaCut"]);
-  cutPtEta = Form(" (p_{T}^{Gen} > %.0f, |#eta^{Gen}| < %.1f)", 
+  cutEta   = Form(" |#eta^{Gen}| < %.1f", meValues["MaxEtaCut"]);
+  cutPtEta = Form(" p_{T}^{Gen} > %.0f, |#eta^{Gen}| < %.1f", 
 		  meValues["MinPtCut"], meValues["MaxEtaCut"]);
 
   //// Get names of histograms to look for
@@ -132,51 +134,38 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   vector<TString> histNames;
   vector<TString> histNamesStats;
   vector<TString> filterNames;
-  filterNames.push_back(""); // Holder for L1Filter name
 
-  // Histogram names differ slightly for different paths
-  // Here, we figure out the pattern and end up with a vector which for an
-  // isolated path looks like: { "L1Filtered", 
-  //                             "L2PreFiltered", "L2IsoFiltered", 
-  //                             "L3PreFiltered", "L3IsoFiltered" }
   files[0]->cd(pathDistributions + hltPath);
   TList *list  = gDirectory->GetListOfKeys();
   TObject *obj = list->First();
   while ( obj ) {
     TString name = obj->GetName();
-    TString filterName = name(name.Index("_L")+1,name.Length());
-    if ( name.Contains("genPassPhi") ) {
-      if ( name.Contains("L1Filtered") )
-	filterNames[0] = filterName;
-      else if ( name.Contains("Filtered") )
-	filterNames.push_back(filterName);
-    }
+    TString filterName = name(name.Index("_L")+1,name.Length());    
+    if ( name.Contains("genPassPhi") )
+      if ( name.Contains("L1") || name.Contains("L2") || name.Contains("L3") )
+        filterNames.push_back(filterName);
     obj = list->After(obj);
   }
 
-  // For isolated paths, we need to reorder "Pre" to come before "Iso"
-  if ( filterNames.size() == 5 ) filterNames = sortFilterNames(filterNames);
-
-  // For single muon samples, the pt distribution is interesting, but for
-  // other samples, turn-on curves are interesting
-  if ( isSingleMuSample ) for ( int i = 0; i < filterNames.size(); i++ ) 
-    histNames.push_back("genPassPt_"+filterNames[i]);
-  else for ( int i = 0; i < filterNames.size(); i++ ) 
-    histNames.push_back("genTurnOn_"+filterNames[i]);
+  // For single muon samples, turn-on curves are not interesting
+  if ( !isSingleMuSample ) 
+    for ( int i = 0; i < filterNames.size(); i++ ) 
+      histNames.push_back("genTurnOn_"+filterNames[i]);
   for ( int i = 0; i < filterNames.size(); i++ ) 
     histNames.push_back("genEffEta_"+filterNames[i]);
   for ( int i = 0; i < filterNames.size(); i++ ) 
     histNames.push_back("genEffPhi_"+filterNames[i]);
 
-  //// Generate statistics table and make various histograms for histPath
+  //// Generate statistics table for histPath
   
   vector<TString> outHtml(numFiles);
   vector<TString> outTwiki(numFiles);
   int stepNumber;
   
+  cout << hltPath << endl;
+
   for ( int genRecIndex = 0; genRecIndex < 2; genRecIndex++ ) {
     for ( int iFile = 0; iFile < numFiles; iFile++ ) {
-      cout << hltPath << endl;
       outHtml[iFile]  = "Gen: <tr><th>" + titles[iFile];
       outTwiki[iFile] = "Gen: | " + titles[iFile];
       for ( int i = 0; i < filterNames.size(); i++ ) {
@@ -194,7 +183,12 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
       if ( genRecIndex == 1 ) outTwiki[iFile].ReplaceAll("Gen","Rec");
       cout << outHtml[iFile] << endl << outTwiki[iFile] << endl;
     } // end iFile loop
-    if ( statsOnly ) break;
+  }
+  if ( statsOnly ) break;
+  
+  //// Generate efficency plots for histPath
+
+  for ( int genRecIndex = 0; genRecIndex < 2; genRecIndex++ ) {
     for ( int i = 0; i < histNames.size(); i++ ) {
       TList *hists = new TList();
       if ( genRecIndex == 1 ) histNames[i].ReplaceAll("gen","rec");
@@ -206,17 +200,17 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
 	histClone->SetTitle(titles[iFile]);
 	hists->Add(histClone);
       }
-      if ( hists->At(0) ) plot( hists, histNames[i], histTitle, ++counter );
+      if ( hists->At(0) ) 
+        plot( hists, histNames[i], histTitle, hltPath, ++counter );
     } // end histNames loop
   }
-
+  
   //// Generate turn-on curves for all paths
 
   for ( int iPath = 0; iPath < pathNames.size(); iPath++ ) {
-    break;
     if ( isSingleMuSample ) break;
+    cout << pathNames[iPath] << endl;
     filterNames.clear();
-    filterNames.push_back("");
     files[0]->cd(pathDistributions + pathNames[iPath]);
     list = gDirectory->GetListOfKeys();
     obj  = list->First();
@@ -225,15 +219,11 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
       TString name = obj->GetName();
       TString filterName = name(name.Index("_L")+1,name.Length());
       if ( name.Contains("genPassPhi") ) {
-	if ( name.Contains("L1Filtered") )
-	  filterNames[0] = filterName;
-	else if ( name.Contains("Filtered") )
+        if ( name.Contains("L1") || name.Contains("L2") || name.Contains("L3"))
 	  filterNames.push_back(filterName);
       }
       obj = list->After(obj);
     }
-    // For isolated paths, put the steps in logical order
-    if ( filterNames.size() == 5 ) filterNames = sortFilterNames(filterNames);
     // Plot turn-on curves for each step
     for ( int i = 0; i < filterNames.size(); i++ ) {
       TList *hists = new TList();
@@ -246,10 +236,11 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
 	  hists->Add(histClone);
 	}
       }
-      TString histName  = "genTurnOn_" + filterNames[i] + " " + 
-	                  pathNames[iPath];
+      if ( hists->GetSize() == 0 ) continue;
+      TString histName  = "genTurnOn_" + filterNames[i];
       TString histTitle = files[0]->Get(histPath)->GetTitle();
-      if ( hists->At(0) ) plot( hists, histName, histTitle, ++counter );
+      if ( hists->At(0) ) 
+        plot( hists, histName, histTitle, pathNames[iPath], ++counter );
     }       
   }
 
@@ -257,7 +248,7 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   //// input file names
 
   if ( fileType == ".pdf" && !statsOnly ) {
-    gSystem->Exec("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf [0-9][0-9].pdf");
+    gSystem->Exec("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf [0-9][0-9][0-9].pdf");
     if ( numFiles == 1  ) 
       gSystem->Exec("cp merged.pdf "+titles[0]+".pdf");
     else if ( numFiles == 2 ) 
@@ -269,31 +260,15 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
 
 }
 
-// A method to get the list of HLT steps into the correct order
-// It just switches "Iso" and "Pre" from alphabetical order to
-// the order in which they occur in the trigger
-vector<TString> sortFilterNames( vector<TString> filterNames ) 
-{
-  TString temp;
-  temp = filterNames[1];
-  filterNames[1] = filterNames[2];
-  filterNames[2] = temp;
-  temp = filterNames[3];
-  filterNames[3] = filterNames[4];
-  filterNames[4] = temp;
-  return filterNames;
-}
-
 
 
 // Make an efficiency, turn-on curve, or pt spectrum plot
-void plot( TList *hists, TString histName, TString histTitle, int counter ) 
+void plot( TList *hists, TString histName, TString histTitle, TString hltPath, int counter ) 
 {
 
   TH1F *firstHist = hists->First();
   TH1F *lastHist  = hists->Last();
   TH1F* hist; 
-  TString label = histName("L[1-3].*Filtered");
 
   TString histType = "Efficiency";
   if ( histName.Contains("TurnOn") ) histType = "TurnOn"; 
@@ -313,7 +288,7 @@ void plot( TList *hists, TString histName, TString histTitle, int counter )
   TF1 *turnOn = new TF1("turnOn","(0.5*TMath::Erf((x/[0]+1.)/(TMath::Sqrt(2.)*[1])) + 0.5*TMath::Erf((x/[0]-1.)/(TMath::Sqrt(2.)*[1])) )*([2])",10,40);
 
   hist = lastHist;
-  TString efficLabel = "(Overall Efficiency)";
+  TString efficLabel = "Overall Efficiencies";
   // For the histogram from each file, set axes and print global efficiencies
   while ( hist ) {
     hist->Draw();
@@ -339,7 +314,7 @@ void plot( TList *hists, TString histName, TString histTitle, int counter )
       turnOn->SetParameters(1,20,100);
       turnOn->SetLineColor( hist->GetLineColor() );
       hist->Fit("turnOn","q");
-      efficLabel = "(Plateau Value)";
+      efficLabel = "Plateau Values";
       hist->Draw();
       double effic = turnOn->GetParameter(2);
       if ( effic < 100. && effic > 0. ) 
@@ -348,27 +323,33 @@ void plot( TList *hists, TString histName, TString histTitle, int counter )
     hist = (TH1F*)hists->Before(hist);
   }
 
-  hist = lastHist;
+  lastHist->GetXaxis()->SetTitle( firstHist->GetXaxis()->GetTitle() ); 
+  lastHist->GetYaxis()->SetTitle( firstHist->GetYaxis()->GetTitle() ); 
+  lastHist->Draw();
+  hist = (TH1F*)hists->Before(lastHist);
   while ( hist ) {
-    if ( hist != lastHist ) hist->Draw("same");
-    else hist->Draw();
+    hist->Draw("same");
     hist = (TH1F*)hists->Before(hist);
   }
 
   double lowerYBound = 0.18;
   double upperYBound = lowerYBound + (0.055 * hists->Capacity());
-  TLegend* legend = gPad->BuildLegend(0.35,lowerYBound,0.83,upperYBound,
-				      "Legend:   Sample Name "+efficLabel);
+  TString cutsString = ( histType == "TurnOn" ) ? cutEta : cutPtEta;
+  TLegend* legend = 
+    gPad->BuildLegend(0.35,lowerYBound,0.83,upperYBound, efficLabel + 
+                      " (Cuts: " + cutsString + ")");
+  legend->SetFillColor(0);
+  legend->SetFillStyle(1001);
 
   if ( histType == "Efficiency" ) {
     TString axisTitle = firstHist->GetXaxis()->GetTitle();
     if ( axisTitle.Contains("#eta") ) histType = "#eta Efficiency";
     if ( axisTitle.Contains("#phi") ) histType = "#phi Efficiency";	 
   }
-  TString number = Form("%.2i",counter);
+  TString number = Form("%.3i",counter);
   TString newTitle = number + ": " + histTitle;
-  if ( histType == "TurnOn" ) newTitle += cutEta;
-  else                        newTitle += cutPtEta;
+  newTitle += " step in " + hltPath;
+  
   lastHist->SetTitle(newTitle);
   gPad->Update();
   c1->SaveAs(number + fileType);
