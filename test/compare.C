@@ -109,6 +109,8 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   }
   
   //// Create map of values of float MonitorElements
+  // The eta and pt cuts used are stored as floats, so we want these
+  // values to be available for printing on the histograms
   
   map<string,float> meValues;
   TPRegexp regexp("^<(.*)>(i|f|s|qr)=(.*)</\\1>$");
@@ -292,6 +294,7 @@ void plot( TList *hists, TString histName, TString histTitle, TString hltPath, i
   // For the histogram from each file, set axes and print global efficiencies
   while ( hist ) {
     hist->Draw();
+    gPad->SetLogx(kFALSE);
     TString title = hist->GetTitle();
     if ( histType == "Efficiency" || histType == "TurnOn" ) {
       hist->Scale(100.);
@@ -311,6 +314,8 @@ void plot( TList *hists, TString histName, TString histTitle, TString hltPath, i
       hist->SetTitle( title + Form(" (%.1f#pm%.1f%%)", effic, error ) );
     }
     if ( histType == "TurnOn" ) {
+      gPad->SetLogx(kTRUE);
+      hist->GetXaxis()->SetRangeUser(2., 1000.);
       turnOn->SetParameters(1,20,100);
       turnOn->SetLineColor( hist->GetLineColor() );
       hist->Fit("turnOn","q");
