@@ -10,13 +10,15 @@
 # Initialize variables
 
 STATS_ONLY=false
+MAKE_RECO_PLOTS=true
 HLTPATH=HLT_IsoMu3
 
 # Process options
 
-while getopts "sp:" OPTION ; do
+while getopts "sgp:" OPTION ; do
    case $OPTION in
        s) STATS_ONLY=true ;;
+       g) MAKE_RECO_PLOTS=false ;;
        p) HLTPATH=$OPTARG ;;
    esac
 done
@@ -24,4 +26,4 @@ shift $(($OPTIND - 1))
 
 # Run the macro 
 
-root -b -q compare.C\(\"$1\",\"$2\",\"$3\",\"$4\",\"$5\",\"$6\",\"$7\",\"$8\",$STATS_ONLY,\"$HLTPATH\"\)
+root -b -q compare.C\(\"$1\",\"$2\",\"$3\",\"$4\",\"$5\",\"$6\",\"$7\",\"$8\",$STATS_ONLY,$MAKE_RECO_PLOTS,\"$HLTPATH\"\)

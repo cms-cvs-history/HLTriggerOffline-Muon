@@ -36,10 +36,11 @@ map<string,float> efficErrors[8];
 void compare( TString n1 = "", TString n2 = "", TString n3 = "", 
 	      TString n4 = "", TString n5 = "", TString n6 = "", 
 	      TString n7 = "", TString n8 = "", 
-	      bool statsOnly = false, TString hltPath = "HLT_IsoMu3" )
+	      bool statsOnly = false, bool shouldMakeRecoPlots = true,
+              TString hltPath = "HLT_IsoMu3" )
 {
 
-  cout << hltPath << endl;
+  cout << "Generating plots for " << hltPath << " trigger path..." << endl;
 
   // Set histogram options
   gStyle->SetOptStat(  0);
@@ -100,6 +101,11 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   for ( int iFile = 0; iFile < numFiles; iFile++ ) {
     TH1F* globHist = (TH1F*)files[iFile]->Get(pathDistributions + hltPath + 
 					      "/globalEfficiencies");
+    if (!globHist) {
+      cout << "No global efficiency histogram in " << names[iFile] 
+           << "!!!!" << endl << "Aborting..." << endl;
+      return;
+    }
     globHist->LabelsDeflate();
     for ( int iBin = 0; iBin < globHist->GetNbinsX(); iBin++ ) {
       string label = globHist->GetXaxis()->GetBinLabel(iBin+1);
@@ -163,10 +169,9 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   vector<TString> outHtml(numFiles);
   vector<TString> outTwiki(numFiles);
   int stepNumber;
-  
-  cout << hltPath << endl;
 
-  for ( int genRecIndex = 0; genRecIndex < 2; genRecIndex++ ) {
+  const int maxGenRecIndex = (shouldMakeRecoPlots) ? 2 : 1;
+  for ( int genRecIndex = 0; genRecIndex < maxGenRecIndex; genRecIndex++ ) {
     for ( int iFile = 0; iFile < numFiles; iFile++ ) {
       outHtml[iFile]  = "Gen: <tr><th>" + titles[iFile];
       outTwiki[iFile] = "Gen: | " + titles[iFile];
@@ -190,7 +195,7 @@ void compare( TString n1 = "", TString n2 = "", TString n3 = "",
   
   //// Generate efficency plots for histPath
 
-  for ( int genRecIndex = 0; genRecIndex < 2; genRecIndex++ ) {
+  for ( int genRecIndex = 0; genRecIndex < maxGenRecIndex; genRecIndex++ ) {
     for ( int i = 0; i < histNames.size(); i++ ) {
       TList *hists = new TList();
       if ( genRecIndex == 1 ) histNames[i].ReplaceAll("gen","rec");
