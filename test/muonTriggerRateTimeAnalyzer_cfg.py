@@ -18,28 +18,27 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames          = cms.untracked.vstring(),
+    fileNames          = cms.untracked.vstring(
+          "/store/mc/Summer09/InclusiveMu15/GEN-SIM-RAW/MC_31X_V2_preproduction_311-v1/0012/8E096534-766E-DE11-8854-000347FF4665.root"
+#          "/store/mc/Summer09/InclusiveMu15/GEN-SIM-RAW/MC_31X_V2_preproduction_311-v1/0012/C2C726DF-806E-DE11-9EF6-001A9227D32D.root"
+    ),
     secondaryFileNames = cms.untracked.vstring()
 )
 
 process.DQMStore = cms.Service("DQMStore")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    HLTMuonVallog  = cms.untracked.PSet(
+    destinations       = cms.untracked.vstring('cout', 'HLTMuonValMessages'),
+    categories         = cms.untracked.vstring('HLTMuonVal'),
+    debugModules       = cms.untracked.vstring('*'),
+    cout               = cms.untracked.PSet(
+        threshold  = cms.untracked.string('WARNING')
+    ),
+    HLTMuonValMessages = cms.untracked.PSet(
         threshold  = cms.untracked.string('INFO'),
-        default    = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HLTMuonVal = cms.untracked.PSet(
-            limit = cms.untracked.int32(100000)
-        )
-    ),
-    debugModules   = cms.untracked.vstring('*'),
-    cout           = cms.untracked.PSet(
-            threshold = cms.untracked.string('WARNING')
-    ),
-    categories     = cms.untracked.vstring('HLTMuonVal'),
-    destinations   = cms.untracked.vstring('cout', 'HLTMuonVal.log')
+        default    = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+        HLTMuonVal = cms.untracked.PSet(limit = cms.untracked.int32(1000))
+    )
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
