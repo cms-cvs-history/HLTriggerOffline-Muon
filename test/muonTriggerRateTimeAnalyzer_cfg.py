@@ -18,10 +18,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames          = cms.untracked.vstring(
-          "/store/mc/Summer09/InclusiveMu15/GEN-SIM-RAW/MC_31X_V2_preproduction_311-v1/0012/8E096534-766E-DE11-8854-000347FF4665.root"
-#          "/store/mc/Summer09/InclusiveMu15/GEN-SIM-RAW/MC_31X_V2_preproduction_311-v1/0012/C2C726DF-806E-DE11-9EF6-001A9227D32D.root"
-    ),
+    fileNames          = cms.untracked.vstring(),
     secondaryFileNames = cms.untracked.vstring()
 )
 
