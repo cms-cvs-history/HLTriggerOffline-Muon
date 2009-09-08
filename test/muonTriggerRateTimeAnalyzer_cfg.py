@@ -24,18 +24,15 @@ process.source = cms.Source("PoolSource",
 
 process.DQMStore = cms.Service("DQMStore")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations       = cms.untracked.vstring('cout', 'HLTMuonValMessages'),
-    categories         = cms.untracked.vstring('HLTMuonVal'),
-    debugModules       = cms.untracked.vstring('*'),
-    cout               = cms.untracked.PSet(
-        threshold  = cms.untracked.string('WARNING')
-    ),
-    HLTMuonValMessages = cms.untracked.PSet(
-        threshold  = cms.untracked.string('INFO'),
-        default    = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-        HLTMuonVal = cms.untracked.PSet(limit = cms.untracked.int32(1000))
-    )
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 500
+process.MessageLogger.destinations += ['HLTMuonValMessages']
+process.MessageLogger.categories   += ['HLTMuonVal']
+process.MessageLogger.debugModules += ['*']
+process.MessageLogger.HLTMuonValMessages = cms.untracked.PSet(
+    threshold  = cms.untracked.string('INFO'),
+    default    = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+    HLTMuonVal = cms.untracked.PSet(limit = cms.untracked.int32(1000))
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
