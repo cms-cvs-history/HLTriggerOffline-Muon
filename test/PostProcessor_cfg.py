@@ -7,7 +7,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 2000
 
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.load("HLTriggerOffline.Muon.PostProcessor_cfi")
+process.load("HLTriggerOffline.Muon.HLTMuonPostProcessor_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
